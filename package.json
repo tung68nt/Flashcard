@@ -1,7 +1,7 @@
 {
   "name": "lexio-pro",
   "private": true,
-  "version": "1.2.0",
+  "version": "2.1.0",
   "author": "Tulie Tech",
   "description": "Lexio PRO - Spaced Repetition (SRS) Flashcard Engine for macOS",
   "type": "module",

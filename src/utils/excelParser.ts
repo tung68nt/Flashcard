@@ -27,19 +27,19 @@ export function detectColumnMapping(headers: string[]): ColumnMapping {
   headers.forEach((header) => {
     const norm = normalize(header);
 
-    if (!mapping.term && (norm.includes('term') || norm.includes('word') || norm.includes('vocab') || norm.includes('tuvung') || norm.includes('tu') || norm.includes('thuatngu'))) {
+    if (!mapping.term && (norm.includes('term') || norm.includes('word') || norm.includes('vocab') || norm.includes('tuvung') || norm === 'tu' || norm.startsWith('tu_') || norm.includes('thuatngu'))) {
       mapping.term = header;
     } else if (!mapping.phonetic && (norm.includes('phonetic') || norm.includes('ipa') || norm.includes('phienam') || norm.includes('pronun') || norm.includes('phatam'))) {
       mapping.phonetic = header;
     } else if (!mapping.partOfSpeech && (norm.includes('partofspeech') || norm.includes('pos') || norm.includes('loaitu') || norm.includes('type') || norm.includes('tucloai') || norm.includes('tuloai'))) {
       mapping.partOfSpeech = header;
-    } else if (!mapping.exampleTranslation && ((norm.includes('example') || norm.includes('vidu')) && (norm.includes('trans') || norm.includes('dich') || norm.includes('nghia')) || norm.includes('dichcau'))) {
+    } else if (!mapping.exampleTranslation && (((norm.includes('example') || norm.includes('vidu')) && (norm.includes('trans') || norm.includes('dich') || norm.includes('nghia'))) || norm.includes('dichcau') || norm.includes('dichvidu') || norm === 'exampletranslation')) {
       mapping.exampleTranslation = header;
     } else if (!mapping.example && (norm.includes('example') || norm.includes('vidu') || norm.includes('sentence') || norm.includes('cauvidu'))) {
       mapping.example = header;
     } else if (!mapping.definition && (norm.includes('meaning') || norm.includes('definition') || norm.includes('nghia') || norm.includes('dich') || norm.includes('dinhnghia') || norm.includes('vietnamese') || norm.includes('giainghia'))) {
       mapping.definition = header;
-    } else if (!mapping.grammarPattern && (norm.includes('grammar') || norm.includes('pattern') || norm.includes('formula') || norm.includes('nguphap') || norm.includes('cautruc'))) {
+    } else if (!mapping.grammarPattern && (norm.includes('grammar') || norm.includes('pattern') || norm.includes('formula') || norm.includes('nguphap') || norm.includes('cautruc') || norm.includes('structure') || norm.includes('struc'))) {
       mapping.grammarPattern = header;
     } else if (!mapping.notes && (norm.includes('note') || norm.includes('mnemonic') || norm.includes('ghichu') || norm.includes('meonho') || norm.includes('luuy'))) {
       mapping.notes = header;
@@ -224,7 +224,70 @@ export function downloadSampleExcel() {
 
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Flashcards_Template');
-  XLSX.writeFile(workbook, 'FlashMaster_Sample_Template.xlsx');
+  XLSX.writeFile(workbook, 'Lexio_Flashcard_Template.xlsx');
+}
+
+/**
+ * Tạo và tải xuống file CSV mẫu chuẩn
+ */
+export function downloadSampleCSV() {
+  const sampleData = [
+    {
+      'Từ vựng (Term)': 'Pivotal',
+      'Phiên âm (IPA)': '/ˈpɪv.ə.t̬əl/',
+      'Từ loại': 'adjective',
+      'Định nghĩa (Meaning)': 'Then chốt, có tính chất quyết định',
+      'Ví dụ (Example)': 'The upcoming summit will play a pivotal role in negotiating the peace accord.',
+      'Dịch ví dụ': 'Hội nghị thượng đỉnh sắp tới sẽ đóng vai trò then chốt trong đàm phán hiệp định hòa bình.',
+      'Cấu trúc ngữ pháp': 'play a pivotal role in (doing) sth',
+      'Ghi chú / Mẹo nhớ': 'Gốc từ "pivot" (trục quay) -> điểm trục cốt lõi, không thể thiếu',
+      'Nhãn (Tags)': 'C1, C2, Academic, Formal',
+    },
+    {
+      'Từ vựng (Term)': 'Exacerbate',
+      'Phiên âm (IPA)': '/ɪɡˈzæs.ɚ.beɪt/',
+      'Từ loại': 'verb',
+      'Định nghĩa (Meaning)': 'Làm trầm trọng thêm, làm xấu đi tình hình',
+      'Ví dụ (Example)': 'The economic crisis was exacerbated by a sudden surge in inflation.',
+      'Dịch ví dụ': 'Khủng hoảng kinh tế càng bị trầm trọng thêm bởi sự gia tăng đột ngột của lạm phát.',
+      'Cấu trúc ngữ pháp': 'exacerbate a problem/condition',
+      'Ghi chú / Mẹo nhớ': 'Đồng nghĩa: worsen, aggravate',
+      'Nhãn (Tags)': 'C1, C2, IELTS Writing Task 2',
+    },
+    {
+      'Từ vựng (Term)': 'Ubiquitous',
+      'Phiên âm (IPA)': '/juːˈbɪk.wə.t̬əs/',
+      'Từ loại': 'adjective',
+      'Định nghĩa (Meaning)': 'Có mặt ở khắp nơi, phổ biến rộng rãi',
+      'Ví dụ (Example)': 'Smartphones have become ubiquitous in modern everyday life.',
+      'Dịch ví dụ': 'Điện thoại thông minh đã trở nên hiện diện ở khắp mọi nơi trong đời sống hiện đại.',
+      'Cấu trúc ngữ pháp': 'become / remain ubiquitous',
+      'Ghi chú / Mẹo nhớ': 'Đồng nghĩa: omnipresent, pervasive',
+      'Nhãn (Tags)': 'C1, Academic, Technology',
+    },
+    {
+      'Từ vựng (Term)': 'Take something with a pinch of salt',
+      'Phiên âm (IPA)': '/teɪk ˈsʌm.θɪŋ wɪð ə pɪntʃ əv sɑːlt/',
+      'Từ loại': 'idiom',
+      'Định nghĩa (Meaning)': 'Tin có chừng mực, hoài nghi một phần',
+      'Ví dụ (Example)': 'You should take the rumors on social media with a pinch of salt.',
+      'Dịch ví dụ': 'Bạn nên tiếp nhận những tin đồn trên mạng xã hội với sự dè dặt, tỉnh táo.',
+      'Cấu trúc ngữ pháp': 'take sth with a grain/pinch of salt',
+      'Ghi chú / Mẹo nhớ': 'Thêm chút muối để đồ ăn bớt kỳ lạ -> nghe gì cũng nêm thêm sự tỉnh táo',
+      'Nhãn (Tags)': 'Idiom, C1, Daily English',
+    },
+  ];
+
+  const csvString = Papa.unparse(sampleData);
+  const blob = new Blob(['\ufeff' + csvString], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', 'Lexio_Flashcard_Template.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 /**

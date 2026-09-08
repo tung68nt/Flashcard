@@ -74,4 +74,46 @@ describe('Excel & CSV Parser and Formula Injection Sanitizer', () => {
     expect(cards[0].easeFactor).toBe(2.5);
     expect(cards[0].repetition).toBe(0);
   });
+
+  it('correctly detects standard 9-column CSV template headers', () => {
+    const csvTemplateHeaders = [
+      'Term',
+      'Phonetic',
+      'PartOfSpeech',
+      'Definition',
+      'Example',
+      'ExampleTranslation',
+      'GrammarPattern',
+      'Notes',
+      'Tags'
+    ];
+
+    const mapping = detectColumnMapping(csvTemplateHeaders);
+    expect(mapping.term).toBe('Term');
+    expect(mapping.phonetic).toBe('Phonetic');
+    expect(mapping.partOfSpeech).toBe('PartOfSpeech');
+    expect(mapping.definition).toBe('Definition');
+    expect(mapping.example).toBe('Example');
+    expect(mapping.exampleTranslation).toBe('ExampleTranslation');
+    expect(mapping.grammarPattern).toBe('GrammarPattern');
+    expect(mapping.notes).toBe('Notes');
+    expect(mapping.tags).toBe('Tags');
+  });
+
+  it('correctly maps Structure and avoids false positive on Term', () => {
+    const headers = [
+      'Structure',
+      'Word',
+      'Meaning',
+      'IPA',
+      'Example'
+    ];
+
+    const mapping = detectColumnMapping(headers);
+    expect(mapping.grammarPattern).toBe('Structure');
+    expect(mapping.term).toBe('Word');
+    expect(mapping.definition).toBe('Meaning');
+    expect(mapping.phonetic).toBe('IPA');
+    expect(mapping.example).toBe('Example');
+  });
 });

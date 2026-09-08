@@ -15,7 +15,8 @@ import {
   parseCSVFile, 
   detectColumnMapping, 
   convertRowsToCards, 
-  downloadSampleExcel 
+  downloadSampleExcel,
+  downloadSampleCSV 
 } from '../utils/excelParser';
 import { ColumnMapping, Deck, Flashcard } from '../types/flashcard';
 import { useModalA11y } from '../hooks/useModalA11y';
@@ -58,6 +59,7 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
   const [selectedDeckId, setSelectedDeckId] = useState<string>(
     currentDeckId || (existingDecks[0]?.id || '')
   );
+  const [existingStrategy, setExistingStrategy] = useState<'replace' | 'append'>('replace');
   const [newDeckTitle, setNewDeckTitle] = useState('');
   const [newDeckDesc, setNewDeckDesc] = useState('');
   const [newDeckLang, setNewDeckLang] = useState('en-US');
@@ -149,13 +151,19 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
         setErrorMsg('Please select a valid destination deck.');
         return;
       }
+      const finalCards = existingStrategy === 'replace' ? cards : [...targetDeck.cards, ...cards];
       const updatedDeck: Deck = {
         ...targetDeck,
-        cards: [...targetDeck.cards, ...cards],
+        cards: finalCards,
         updatedAt: new Date().toISOString(),
       };
       onImportSuccess(updatedDeck, false);
-      showToast(`Imported ${cards.length} cards into "${targetDeck.title}"!`, 'success');
+      showToast(
+        existingStrategy === 'replace'
+          ? `Đã ghi đè ${cards.length} thẻ vào bộ "${targetDeck.title}"!`
+          : `Đã thêm nối tiếp ${cards.length} thẻ vào bộ "${targetDeck.title}"!`,
+        'success'
+      );
     }
 
     onClose();
@@ -253,14 +261,28 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                     Download our ready-to-use template with 9 standard columns (Term, Phonetics, POS, Definition, Example, Translation, Grammar, Notes, Tags).
                   </p>
                 </div>
-                <button 
-                  className="btn btn-secondary" 
-                  onClick={downloadSampleExcel}
-                  style={{ fontSize: '0.85rem' }}
-                >
-                  <Download size={16} />
-                  <span>Download Excel Template (.xlsx)</span>
-                </button>
+                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                  <button 
+                    type="button"
+                    className="btn btn-secondary" 
+                    onClick={downloadSampleCSV}
+                    style={{ fontSize: '0.85rem' }}
+                    id="download-csv-template-btn"
+                  >
+                    <Download size={16} />
+                    <span>Download CSV Template (.csv)</span>
+                  </button>
+                  <button 
+                    type="button"
+                    className="btn btn-secondary" 
+                    onClick={downloadSampleExcel}
+                    style={{ fontSize: '0.85rem' }}
+                    id="download-excel-template-btn"
+                  >
+                    <Download size={16} />
+                    <span>Download Excel Template (.xlsx)</span>
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
@@ -472,6 +494,27 @@ export const BulkImportModal: React.FC<BulkImportModalProps> = ({
                       </option>
                     ))}
                   </select>
+
+                  <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6, background: 'var(--bg-tertiary)', padding: '10px 14px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.85rem' }}>
+                      <input 
+                        type="radio" 
+                        name="existingStrategy" 
+                        checked={existingStrategy === 'replace'} 
+                        onChange={() => setExistingStrategy('replace')} 
+                      />
+                      <span><strong>Ghi đè toàn bộ (Overwrite)</strong>: Thay thế toàn bộ thẻ hiện có bằng danh sách trong file CSV/Excel này (phù hợp khi tải về sửa rồi nạp lại).</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: '0.85rem' }}>
+                      <input 
+                        type="radio" 
+                        name="existingStrategy" 
+                        checked={existingStrategy === 'append'} 
+                        onChange={() => setExistingStrategy('append')} 
+                      />
+                      <span><strong>Thêm nối tiếp (Append)</strong>: Giữ nguyên thẻ cũ và thêm các thẻ mới trong file vào cuối bộ thẻ.</span>
+                    </label>
+                  </div>
                 </div>
               )}
 

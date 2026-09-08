@@ -38,3 +38,10 @@ lerna-debug.log*
 *.sln
 *.sw?
 .DS_Store
+
+# Swift build artifacts
+.build/
+pure-macos/.build/
+
+# Scratch & temporary testing files
+scratch/

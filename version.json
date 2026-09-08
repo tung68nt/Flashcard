@@ -1,0 +1,15 @@
+{
+  "version": "2.1.0",
+  "build": 20260908,
+  "releaseDate": "2026-09-08",
+  "title": "Lexio PRO v2.1.0 - Trình Sửa Thẻ Dạng Bảng Tính & Sửa Lỗi Giao Diện",
+  "notes": [
+    "Chế độ chỉnh sửa Bảng tính (Spreadsheet Table) trực quan như Excel: sửa trực tiếp từng ô, không lo lỗi cú pháp.",
+    "Khắc phục triệt để lỗi chữ 'Chế độ xem' bị xếp dọc và tối ưu thanh công cụ 24px gọn gàng chuẩn Apple Human Interface.",
+    "Hỗ trợ nhập/xuất và cập nhật CSV trực tiếp vào từng bộ thẻ (tùy chọn Ghi đè hoặc Thêm mới).",
+    "Sửa lỗi nhận diện cột ngữ pháp (Grammar Pattern) bị nhảy nhầm vào Phiên âm.",
+    "Tối ưu hóa bảng thống kê 2 cột chuẩn Apple KPI Cards, chống tràn chữ trên mọi kích thước màn hình."
+  ],
+  "downloadUrl": "https://github.com/tung68nt/Flashcard/releases/latest/download/Lexio-Pure-Native-macOS.dmg",
+  "fallbackUrl": "https://github.com/tung68nt/Flashcard/releases"
+}
