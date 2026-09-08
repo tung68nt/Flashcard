@@ -144,13 +144,8 @@ public struct CardRowView: View {
                 }
             }
         }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 14)
-        .background(Color(NSColor.textBackgroundColor))
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(NSColor.separatorColor).opacity(0.7), lineWidth: 1)
-        )
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .liquidGlassCard(cornerRadius: 12, isInteractive: true)
     }
 }

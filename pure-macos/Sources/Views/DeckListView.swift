@@ -7,10 +7,6 @@ public final class DeckListViewModel: ObservableObject {
     public init() {}
 }
 
-private final class TileHoverModel: ObservableObject {
-    @Published var isHovered: Bool = false
-}
-
 public struct DeckListView: View {
     @ObservedObject private var storage = StorageService.shared
     @StateObject private var viewModel = DeckListViewModel()
@@ -119,13 +115,13 @@ public struct DeckListView: View {
                             .buttonStyle(.plain)
                         }
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .background(Color(NSColor.textBackgroundColor))
-                    .cornerRadius(8)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color(NSColor.separatorColor).opacity(0.8), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color.white.opacity(0.18), lineWidth: 0.8)
                     )
                     
                     if categories.count > 1 {
@@ -166,13 +162,12 @@ public struct DeckListView: View {
             }
             .padding(24)
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.clear)
     }
 }
 
 private struct DeckCardTile: View {
     let deck: Deck
-    @StateObject private var hoverModel = TileHoverModel()
     
     private var deckColor: Color {
         Color(hex: deck.colorHex)
@@ -183,22 +178,22 @@ private struct DeckCardTile: View {
             HStack(alignment: .top, spacing: 12) {
                 // Clean Apple Icon Square
                 ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(deckColor.opacity(0.14))
-                        .frame(width: 38, height: 38)
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(deckColor.opacity(0.15))
+                        .frame(width: 40, height: 40)
                     
                     Image(systemName: "book.closed.fill")
-                        .font(.system(size: 17))
+                        .font(.system(size: 18))
                         .foregroundColor(deckColor)
                 }
                 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(deck.category)
-                        .font(.lexioCaptionMedium)
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.secondary)
                     
                     Text(deck.title)
-                        .font(.lexioHeadline)
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
                         .foregroundColor(.primary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
@@ -207,7 +202,7 @@ private struct DeckCardTile: View {
                 Spacer()
                 
                 Image(systemName: "chevron.right")
-                    .font(.lexioCaption)
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(.secondary.opacity(0.4))
             }
             
@@ -222,39 +217,32 @@ private struct DeckCardTile: View {
             
             Spacer()
             
-            Divider()
+            Divider().opacity(0.4)
             
             HStack {
                 Label("\(deck.cards.count) thẻ", systemImage: "rectangle.stack")
-                    .font(.lexioCaption)
+                    .font(.system(size: 11.5))
                     .foregroundColor(.secondary)
                 
                 Spacer()
                 
                 if deck.dueCardsCount > 0 {
                     Text("\(deck.dueCardsCount) cần ôn")
-                        .font(.lexioCaptionSemibold)
+                        .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(.red)
                         .padding(.horizontal, 7)
-                        .padding(.vertical, 2)
-                        .background(Color.red.opacity(0.1))
+                        .padding(.vertical, 2.5)
+                        .background(Color.red.opacity(0.12))
                         .clipShape(Capsule())
                 } else {
                     Text("Đã ôn hết")
-                        .font(.lexioCaption)
+                        .font(.system(size: 11))
                         .foregroundColor(.secondary.opacity(0.7))
                 }
             }
         }
         .padding(16)
         .frame(height: 155)
-        .background(Color(NSColor.textBackgroundColor))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(hoverModel.isHovered ? Color.accentColor : Color(NSColor.separatorColor).opacity(0.7), lineWidth: hoverModel.isHovered ? 1.5 : 1)
-        )
-        .shadow(color: Color.black.opacity(hoverModel.isHovered ? 0.06 : 0.02), radius: hoverModel.isHovered ? 6 : 2, x: 0, y: 1)
-        .onHover { hoverModel.isHovered = $0 }
+        .liquidGlassCard(cornerRadius: 14, isInteractive: true)
     }
 }

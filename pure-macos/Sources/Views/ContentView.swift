@@ -194,70 +194,85 @@ public struct ContentView: View {
                     }
                 }
             }
-            .background(Color(NSColor.windowBackgroundColor))
+            .background(
+                VisualEffectView(material: .sidebar, blendingMode: .behindWindow)
+                    .ignoresSafeArea()
+            )
             .toolbar {
                 ToolbarItemGroup(placement: .automatic) {
+                    // 1. Accent Selector (Oxford / Cambridge)
                     Menu {
                         Button {
                             vm.selectedAccent = .uk
                             SpeechService.shared.preferredAccent = .uk
                         } label: {
-                            Label("Giọng Anh - Anh (UK 🇬🇧 Oxford/Cambridge)", systemImage: vm.selectedAccent == .uk ? "checkmark" : "")
+                            Label("Giọng Anh - Anh (UK 🇬🇧)", systemImage: vm.selectedAccent == .uk ? "checkmark" : "")
                         }
                         
                         Button {
                             vm.selectedAccent = .us
                             SpeechService.shared.preferredAccent = .us
                         } label: {
-                            Label("Giọng Anh - Mỹ (US 🇺🇸 Oxford/Cambridge)", systemImage: vm.selectedAccent == .us ? "checkmark" : "")
+                            Label("Giọng Anh - Mỹ (US 🇺🇸)", systemImage: vm.selectedAccent == .us ? "checkmark" : "")
                         }
                     } label: {
-                        HStack(spacing: 3) {
-                            CompactToolbarPlatter(height: 24).frame(width: 0, height: 0)
+                        HStack(spacing: 5) {
                             Image(systemName: "waveform")
+                                .font(.system(size: 13, weight: .medium))
                             Text(vm.selectedAccent.label)
+                                .font(.system(size: 12, weight: .semibold))
                         }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
                     }
-                    .help("Giọng đọc mặc định: Oxford / Cambridge")
+                    .help("Giọng đọc phát âm mặc định: Oxford / Cambridge")
                     
+                    // 2. Data & Cloud/File Management
                     Menu {
-                        Button(action: importCSV) {
-                            Label("Chọn File CSV Để Nhập...", systemImage: "arrow.down.doc")
+                        Section("Nhập / Xuất CSV") {
+                            Button(action: importCSV) {
+                                Label("Nhập Thêm Từ File CSV...", systemImage: "arrow.down.doc")
+                            }
+                            Button(action: downloadSampleCSV) {
+                                Label("Tải Mẫu File CSV Chuẩn...", systemImage: "square.and.arrow.down")
+                            }
                         }
-                        Divider()
-                        Button(action: downloadSampleCSV) {
-                            Label("Tải File CSV Mẫu Chuẩn (.csv)...", systemImage: "square.and.arrow.down")
+                        
+                        Section("Sao Lưu Toàn Bộ") {
+                            Button(action: backupAllJSON) {
+                                Label("Sao Lưu Toàn Bộ Dữ Liệu (.json)...", systemImage: "arrow.up.doc")
+                            }
+                            Button(action: restoreAllJSON) {
+                                Label("Phục Hồi Dữ Liệu Từ File Backup (.json)...", systemImage: "arrow.clockwise")
+                            }
                         }
                     } label: {
-                        HStack(spacing: 0) {
-                            CompactToolbarPlatter(height: 24).frame(width: 0, height: 0)
-                            Image(systemName: "arrow.down.doc")
+                        HStack(spacing: 4) {
+                            Image(systemName: "externaldrive")
+                                .font(.system(size: 13, weight: .medium))
+                            Text("Dữ Liệu")
+                                .font(.system(size: 12, weight: .medium))
                         }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
                     }
-                    .help("Nhập từ vựng hoặc tải file CSV mẫu chuẩn")
+                    .help("Nhập CSV, tải mẫu và sao lưu / phục hồi dữ liệu")
                     
-                    HStack(spacing: 6) {
-                        CompactToolbarPlatter(height: 24).frame(width: 0, height: 0)
-                        Button(action: backupAllJSON) {
-                            Image(systemName: "arrow.up.doc")
-                        }
-                        .help("Tải file sao lưu toàn bộ dữ liệu (.json)")
-                        
-                        Button(action: restoreAllJSON) {
-                            Image(systemName: "arrow.clockwise")
-                        }
-                        .help("Phục hồi dữ liệu từ file backup JSON")
-                        
-                        Button(action: { updateService.checkForUpdates() }) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                        }
-                        .help("Kiểm tra bản cập nhật mới (Check for Updates)")
-                        
-                        Button(action: { vm.showAboutModal = true }) {
-                            Image(systemName: "info.circle")
-                        }
-                        .help("Thông tin Lexio PRO Native")
+                    // 3. Updates
+                    Button(action: { updateService.checkForUpdates() }) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                            .font(.system(size: 12, weight: .medium))
+                            .frame(width: 18, height: 18)
                     }
+                    .help("Kiểm tra bản cập nhật mới (Check for Updates)")
+                    
+                    // 4. About Modal
+                    Button(action: { vm.showAboutModal = true }) {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 13, weight: .medium))
+                            .frame(width: 18, height: 18)
+                    }
+                    .help("Thông tin Lexio PRO Native")
                 }
             }
         }

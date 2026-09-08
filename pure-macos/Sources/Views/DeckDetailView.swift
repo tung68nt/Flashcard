@@ -63,268 +63,352 @@ public struct DeckDetailView: View {
     public var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Back Button
+                VStack(alignment: .leading, spacing: 18) {
+                    // Back Navigation Link
                     if let back = onBack {
                         Button(action: back) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: 5) {
                                 Image(systemName: "chevron.left")
+                                    .font(.system(size: 11, weight: .semibold))
                                 Text("Tất cả bộ thẻ")
+                                    .font(.lexioBody)
                             }
-                            .font(.lexioBody)
                             .foregroundColor(.accentColor)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.8)
+                            )
                         }
                         .buttonStyle(.plain)
                     }
                     
-                    // Clean Header Card
-                    VStack(alignment: .leading, spacing: 14) {
+                    // MARK: - 1. Liquid Glass Header & Quick Actions
+                    VStack(alignment: .leading, spacing: 12) {
                         HStack(alignment: .top) {
-                            VStack(alignment: .leading, spacing: 5) {
+                            VStack(alignment: .leading, spacing: 6) {
                                 HStack(spacing: 8) {
                                     Text(currentDeck.category)
-                                        .font(.lexioCaptionMedium)
-                                        .foregroundColor(.secondary)
-                                    
-                                    Text("•")
-                                        .foregroundColor(.secondary)
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundColor(.accentColor)
+                                        .liquidGlassPill(isHighlighted: true)
                                     
                                     Text(currentDeck.language)
-                                        .font(.lexioCaptionMedium)
+                                        .font(.system(size: 11, weight: .medium))
                                         .foregroundColor(.secondary)
+                                        .liquidGlassPill(isHighlighted: false)
                                 }
                                 
                                 Text(currentDeck.title)
-                                    .font(.lexioTitle)
+                                    .font(.system(size: 24, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
                                 
                                 if !currentDeck.description.isEmpty {
                                     Text(currentDeck.description)
                                         .font(.lexioBody)
                                         .foregroundColor(.secondary)
+                                        .lineSpacing(2)
                                 }
                             }
                             
                             Spacer(minLength: 16)
                             
-                            // Top-Right Actions: Chỉnh Sửa thông tin & Xóa
+                            // Top-Right Actions: Menu CSV & Chỉnh sửa
                             HStack(spacing: 8) {
-                                Button(action: onEditDeck) {
-                                    Label("Chỉnh Sửa", systemImage: "pencil")
+                                Menu {
+                                    Section("Soạn Thảo & Cập Nhật") {
+                                        Button(action: { viewModel.showDirectCSVEditor = true }) {
+                                            Label("Sửa Nhanh Dạng Bảng CSV...", systemImage: "tablecells.badge.ellipsis")
+                                        }
+                                        Button(action: importCSVToThisDeck) {
+                                            Label("Cập Nhật Thêm Từ File CSV...", systemImage: "arrow.up.doc")
+                                        }
+                                    }
+                                    
+                                    Section("Xuất Dữ Liệu") {
+                                        Button(action: exportCSV) {
+                                            Label("Xuất File CSV Bộ Thẻ Này...", systemImage: "arrow.down.doc")
+                                        }
+                                    }
+                                } label: {
+                                    HStack(spacing: 5) {
+                                        Image(systemName: "tablecells")
+                                            .font(.system(size: 12, weight: .medium))
+                                        Text("Dữ Liệu & CSV")
+                                            .font(.system(size: 12, weight: .medium))
+                                        Image(systemName: "chevron.down")
+                                            .font(.system(size: 9, weight: .semibold))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(.thinMaterial)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
+                                    )
                                 }
-                                .buttonStyle(.bordered)
-                                .controlSize(.regular)
-                                .fixedSize(horizontal: true, vertical: false)
+                                .menuStyle(.borderlessButton)
+                                .help("Sửa nhanh bảng tính CSV, nạp thêm hoặc xuất dữ liệu bộ thẻ này")
+                                
+                                Button(action: onEditDeck) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "pencil")
+                                            .font(.system(size: 12, weight: .medium))
+                                        Text("Sửa")
+                                            .font(.system(size: 12, weight: .medium))
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(.thinMaterial)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
+                                    )
+                                }
+                                .buttonStyle(.plain)
                                 .help("Chỉnh sửa thông tin và danh sách thẻ trong Studio")
                                 
                                 Button(action: { viewModel.showDeleteConfirm = true }) {
                                     Image(systemName: "trash")
-                                        .foregroundColor(.red)
+                                        .font(.system(size: 12, weight: .medium))
+                                        .foregroundColor(.red.opacity(0.85))
+                                        .padding(6)
+                                        .background(.thinMaterial)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
+                                        )
                                 }
-                                .buttonStyle(.bordered)
-                                .controlSize(.regular)
-                                .fixedSize(horizontal: true, vertical: false)
+                                .buttonStyle(.plain)
                                 .help("Xóa bộ thẻ này")
                             }
                         }
-                        
-                        Divider()
-                            .opacity(0.6)
-                        
-                        // Bottom Action Strip: Thao tác dữ liệu CSV (Độc lập, rộng rãi, tuyệt đối không bị khuất chữ)
-                        HStack(spacing: 10) {
-                            // 1. Sửa trực tiếp dạng CSV / Bảng
-                            Button(action: { viewModel.showDirectCSVEditor = true }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "tablecells.badge.ellipsis")
-                                        .foregroundColor(.accentColor)
-                                    Text("Sửa Nhanh CSV")
-                                        .fontWeight(.medium)
-                                }
+                    }
+                    .padding(18)
+                    .liquidGlassCard(cornerRadius: 16)
+                    
+                    // MARK: - 2. Hero Primary Study Action (Trung tâm điều hướng cho người mới)
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(alignment: .center, spacing: 16) {
+                            ZStack {
+                                Circle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [
+                                                currentDeck.dueCardsCount > 0 ? Color(hex: "#FF375F") : Color(hex: "#0A84FF"),
+                                                currentDeck.dueCardsCount > 0 ? Color(hex: "#FF9F0A") : Color(hex: "#30D158")
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .frame(width: 48, height: 48)
+                                    .shadow(color: (currentDeck.dueCardsCount > 0 ? Color.red : Color.blue).opacity(0.3), radius: 10, y: 4)
+                                
+                                Image(systemName: currentDeck.dueCardsCount > 0 ? "brain.head.profile" : "sparkles")
+                                    .font(.system(size: 22, weight: .bold))
+                                    .foregroundColor(.white)
                             }
-                            .buttonStyle(.bordered)
-                            .controlSize(.regular)
-                            .fixedSize(horizontal: true, vertical: false)
-                            .help("Mở bảng soạn thảo CSV trực tiếp, sửa hoặc copy/paste từ Excel/Sheets rồi lưu ngay")
                             
-                            // 2. Nạp file CSV cập nhật đúng bộ này
-                            Button(action: importCSVToThisDeck) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "arrow.up.doc")
-                                        .foregroundColor(.blue)
-                                    Text("Cập Nhật CSV")
-                                        .fontWeight(.medium)
-                                }
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.regular)
-                            .fixedSize(horizontal: true, vertical: false)
-                            .help("Nạp file CSV đã sửa vào đúng bộ thẻ này mà không tạo bộ mới")
-                            
-                            // 3. Tải CSV về máy
-                            Button(action: exportCSV) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "arrow.down.doc")
+                            VStack(alignment: .leading, spacing: 3) {
+                                if currentDeck.dueCardsCount > 0 {
+                                    Text("Đến giờ ôn tập thông minh")
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .foregroundColor(.primary)
+                                    Text("Có \(currentDeck.dueCardsCount) thẻ vựng đến hạn ôn hôm nay theo thuật toán ngắt quãng (SRS).")
+                                        .font(.system(size: 12.5))
                                         .foregroundColor(.secondary)
-                                    Text("Tải CSV")
-                                        .fontWeight(.medium)
+                                } else {
+                                    Text("Bạn đã hoàn thành mục tiêu ôn tập hôm nay!")
+                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .foregroundColor(.primary)
+                                    Text("Tổng cộng \(currentDeck.cards.count) thẻ vựng. Bạn có thể lật thẻ ôn lại hoặc thử sức với các bài tập.")
+                                        .font(.system(size: 12.5))
+                                        .foregroundColor(.secondary)
                                 }
                             }
-                            .buttonStyle(.bordered)
-                            .controlSize(.regular)
-                            .fixedSize(horizontal: true, vertical: false)
-                            .help("Tải file CSV của bộ này về máy để chỉnh sửa")
                             
-                            Spacer(minLength: 0)
+                            Spacer(minLength: 16)
+                            
+                            // Nút Bắt Đầu Học Chính (Hero CTA)
+                            Button(action: {
+                                if currentDeck.dueCardsCount > 0 {
+                                    onStartStudy(.srs)
+                                } else {
+                                    onStartStudy(.flashcards)
+                                }
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "play.fill")
+                                        .font(.system(size: 13, weight: .bold))
+                                    Text(currentDeck.dueCardsCount > 0 ? "Ôn Tập Ngay (\(currentDeck.dueCardsCount))" : "Bắt Đầu Lật Thẻ")
+                                        .font(.system(size: 14, weight: .bold))
+                                }
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 10)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color.accentColor, Color.accentColor.opacity(0.85)],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
+                                )
+                                .foregroundColor(.white)
+                                .clipShape(Capsule())
+                                .shadow(color: Color.accentColor.opacity(0.35), radius: 8, y: 3)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(currentDeck.cards.isEmpty)
                         }
                     }
                     .padding(18)
-                    .background(Color(NSColor.textBackgroundColor))
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(NSColor.separatorColor).opacity(0.7), lineWidth: 1)
-                    )
-                
-                // Modern Apple KPI Metric Cards Grid (2 Cột x 2 Hàng để chữ rộng rãi, không bị khuất chữ)
-                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
-                    GridRow {
-                        StatMetricCard(
+                    .liquidGlassCard(cornerRadius: 16, isInteractive: true)
+                    
+                    // MARK: - 3. Slim Liquid Glass Stat Strip (Thu gọn 4 khối KPI cồng kềnh)
+                    HStack(spacing: 0) {
+                        StatPill(
                             title: "Tổng số thẻ",
-                            subtitle: "\(currentDeck.cards.count) thẻ vựng",
                             value: "\(currentDeck.cards.count)",
                             icon: "square.stack.3d.up.fill",
-                            color: Color(hex: "#0A84FF") // Apple Blue
+                            tint: Color(hex: "#0A84FF")
                         )
-                        StatMetricCard(
+                        
+                        Divider().frame(height: 28).opacity(0.4)
+                        
+                        StatPill(
                             title: "Cần ôn hôm nay",
-                            subtitle: currentDeck.dueCardsCount > 0 ? "Sẵn sàng ôn tập" : "Đã hoàn thành",
                             value: "\(currentDeck.dueCardsCount)",
                             icon: "clock.badge.exclamationmark.fill",
-                            color: currentDeck.dueCardsCount > 0 ? Color(hex: "#FF453A") : Color(hex: "#30D158") // Apple Red/Green
+                            tint: currentDeck.dueCardsCount > 0 ? Color(hex: "#FF453A") : Color(hex: "#30D158")
                         )
-                    }
-                    GridRow {
-                        StatMetricCard(
-                            title: "Yêu thích",
-                            subtitle: "\(currentDeck.starredCardsCount) thẻ quan trọng",
+                        
+                        Divider().frame(height: 28).opacity(0.4)
+                        
+                        StatPill(
+                            title: "Gắn sao",
                             value: "\(currentDeck.starredCardsCount)",
                             icon: "star.fill",
-                            color: Color(hex: "#FF9F0A") // Apple Amber
+                            tint: Color(hex: "#FF9F0A")
                         )
-                        StatMetricCard(
+                        
+                        Divider().frame(height: 28).opacity(0.4)
+                        
+                        StatPill(
                             title: "Độ dễ SM-2",
-                            subtitle: "Hệ số ghi nhớ dài hạn",
                             value: String(format: "%.1f", currentDeck.averageEaseFactor),
                             icon: "brain.head.profile",
-                            color: Color(hex: "#BF5AF2") // Apple Purple
+                            tint: Color(hex: "#BF5AF2")
                         )
                     }
-                }
-                
-                // 5 Study Modes Section (Equal height per row, full title & description)
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Chế Độ Học & Luyện Tập")
-                        .font(.lexioSection)
-                        .foregroundColor(.primary)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 12)
+                    .liquidGlassCard(cornerRadius: 12)
                     
-                    Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 12) {
-                        GridRow {
-                            studyModeCard(for: .flashcards)
-                            studyModeCard(for: .srs)
-                            studyModeCard(for: .write)
-                        }
-                        GridRow {
-                            studyModeCard(for: .match)
-                            studyModeCard(for: .test)
-                            Color.clear
-                        }
-                    }
-                }
-                
-                // Flashcards Filter & Search Bar
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 10) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "magnifyingglass")
-                                .foregroundColor(.secondary)
-                                .font(.lexioBody)
-                            TextField("Tìm kiếm từ vựng, định nghĩa...", text: $viewModel.searchQuery)
-                                .textFieldStyle(.plain)
-                                .font(.lexioBody)
-                            if !viewModel.searchQuery.isEmpty {
-                                Button(action: { viewModel.searchQuery = "" }) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.secondary)
-                                        .font(.lexioCaption)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 7)
-                        .background(Color(NSColor.textBackgroundColor))
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(NSColor.separatorColor).opacity(0.7), lineWidth: 1)
-                        )
+                    // MARK: - 4. Study Modes Strip (5 Chế độ học gọn gàng, thanh lịch)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Chế Độ Luyện Tập")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundColor(.secondary)
                         
-                        // Filter Starred
-                        Toggle(isOn: $viewModel.onlyStarred) {
-                            Label("Gắn sao", systemImage: "star.fill")
-                                .font(.lexioCaption)
-                        }
-                        .toggleStyle(.button)
-                        .controlSize(.regular)
-                        
-                        // Tag Picker
-                        if allTags.count > 1 {
-                            Picker("Nhãn:", selection: $viewModel.selectedTag) {
-                                ForEach(allTags, id: \.self) { tag in
-                                    Text(tag).tag(tag)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                            .frame(width: 130)
-                            .font(.lexioCaption)
+                        HStack(spacing: 10) {
+                            studyModeButton(for: .flashcards, label: "Lật Thẻ", icon: "rectangle.stack")
+                            studyModeButton(for: .srs, label: "Học SRS", icon: "brain")
+                            studyModeButton(for: .write, label: "Gõ Từ", icon: "keyboard")
+                            studyModeButton(for: .match, label: "Ghép Thẻ", icon: "square.grid.2x2")
+                            studyModeButton(for: .test, label: "Kiểm Tra", icon: "checkmark.seal")
                         }
                     }
                     
-                    // Cards List
-                    VStack(spacing: 8) {
-                        ForEach(filteredCards) { card in
-                            CardRowView(
-                                card: card,
-                                language: deck.language,
-                                onToggleStar: {
-                                    var updated = card
-                                    updated.starred.toggle()
-                                    storage.updateCardInDeck(deckId: deck.id, card: updated)
-                                },
-                                onDelete: {
-                                    viewModel.cardToDelete = card
-                                }
-                            )
-                        }
-                        
-                        if filteredCards.isEmpty {
-                            VStack(spacing: 8) {
-                                Image(systemName: "text.magnifyingglass")
-                                    .font(.system(size: 28))
-                                    .foregroundColor(.secondary.opacity(0.4))
-                                Text("Không tìm thấy thẻ nào phù hợp")
-                                    .font(.lexioCaption)
+                    // MARK: - 5. Cards Filter & Search Bar
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack(spacing: 10) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "magnifyingglass")
                                     .foregroundColor(.secondary)
+                                    .font(.system(size: 13))
+                                TextField("Tìm kiếm từ vựng, định nghĩa...", text: $viewModel.searchQuery)
+                                    .textFieldStyle(.plain)
+                                    .font(.lexioBody)
+                                if !viewModel.searchQuery.isEmpty {
+                                    Button(action: { viewModel.searchQuery = "" }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.secondary)
+                                            .font(.system(size: 12))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 40)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white.opacity(0.18), lineWidth: 0.8)
+                            )
+                            
+                            // Filter Starred
+                            Toggle(isOn: $viewModel.onlyStarred) {
+                                Label("Gắn sao", systemImage: "star.fill")
+                                    .font(.system(size: 12, weight: .medium))
+                            }
+                            .toggleStyle(.button)
+                            .controlSize(.regular)
+                            
+                            // Tag Picker
+                            if allTags.count > 1 {
+                                Picker("Nhãn:", selection: $viewModel.selectedTag) {
+                                    ForEach(allTags, id: \.self) { tag in
+                                        Text(tag).tag(tag)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(width: 130)
+                                .font(.system(size: 12))
+                            }
+                        }
+                        
+                        // Cards List
+                        VStack(spacing: 10) {
+                            ForEach(filteredCards) { card in
+                                CardRowView(
+                                    card: card,
+                                    language: deck.language,
+                                    onToggleStar: {
+                                        var updated = card
+                                        updated.starred.toggle()
+                                        storage.updateCardInDeck(deckId: deck.id, card: updated)
+                                    },
+                                    onDelete: {
+                                        viewModel.cardToDelete = card
+                                    }
+                                )
+                            }
+                            
+                            if filteredCards.isEmpty {
+                                VStack(spacing: 10) {
+                                    Image(systemName: "text.magnifyingglass")
+                                        .font(.system(size: 32))
+                                        .foregroundColor(.secondary.opacity(0.4))
+                                    Text("Không tìm thấy thẻ nào phù hợp")
+                                        .font(.lexioCaption)
+                                        .foregroundColor(.secondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 40)
+                            }
                         }
                     }
                 }
+                .padding(24)
             }
-            .padding(24)
-        }
             // Floating Toast notification
             if let toast = viewModel.toastMessage {
                 HStack(spacing: 8) {
@@ -342,7 +426,7 @@ public struct DeckDetailView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.clear)
         .sheet(isPresented: $viewModel.showDirectCSVEditor) {
             DirectCSVEditorSheet(
                 deckTitle: currentDeck.title,
@@ -387,50 +471,36 @@ public struct DeckDetailView: View {
     }
     
     @ViewBuilder
-    private func studyModeCard(for mode: StudyMode) -> some View {
+    private func studyModeButton(for mode: StudyMode, label: String, icon: String) -> some View {
         Button(action: { onStartStudy(mode) }) {
-            HStack(alignment: .top, spacing: 12) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(mode.tintColor.opacity(0.12))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: mode.iconName)
-                        .font(.system(size: 17))
-                        .foregroundColor(mode.tintColor)
-                }
-                .padding(.top, 2)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(mode.rawValue)
-                        .font(.lexioHeadline)
-                        .foregroundColor(.primary)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .multilineTextAlignment(.leading)
-                    
-                    Text(mode.description)
-                        .font(.lexioCaption)
-                        .foregroundColor(.secondary)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .multilineTextAlignment(.leading)
-                        .lineSpacing(2)
-                }
-                
-                Spacer(minLength: 0)
+            HStack(spacing: 7) {
+                Image(systemName: icon)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(mode.tintColor)
+                Text(label)
+                    .font(.system(size: 12.5, weight: .medium))
+                    .foregroundColor(.primary)
             }
-            .padding(12)
-            .frame(maxWidth: .infinity, minHeight: 84, maxHeight: .infinity, alignment: .topLeading)
-            .background(Color(NSColor.textBackgroundColor))
-            .cornerRadius(10)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+            .background(.thinMaterial)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color(NSColor.separatorColor).opacity(0.7), lineWidth: 1)
+                    .stroke(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.25), Color.white.opacity(0.06)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 0.8
+                    )
             )
-            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(currentDeck.cards.isEmpty)
+        .help("Bắt đầu luyện tập chế độ \(mode.rawValue)")
     }
     
     private func exportCSV() {
@@ -519,54 +589,27 @@ public struct DeckDetailView: View {
     }
 }
 
-private struct StatMetricCard: View {
+private struct StatPill: View {
     let title: String
-    let subtitle: String
     let value: String
     let icon: String
-    let color: Color
+    let tint: Color
     
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            // Icon Chip
-            ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(color.opacity(0.12))
-                    .frame(width: 40, height: 40)
-                
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(color)
-            }
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(tint)
             
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(value)
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
-                
                 Text(title)
-                    .font(.lexioCaptionMedium)
-                    .foregroundColor(.primary)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                
-                Text(subtitle)
                     .font(.system(size: 11))
                     .foregroundColor(.secondary)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
             }
-            
-            Spacer(minLength: 0)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(NSColor.textBackgroundColor))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.8)
-        )
+        .frame(maxWidth: .infinity)
     }
 }
