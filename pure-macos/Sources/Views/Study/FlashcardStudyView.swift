@@ -155,11 +155,10 @@ public struct FlashcardStudyView: View {
                 Button(action: viewModel.prevCard) {
                     Image(systemName: "arrow.left")
                         .font(.lexioHeadline)
-                        .frame(width: 40, height: 40)
-                        .background(Color(NSColor.textBackgroundColor))
+                        .frame(width: 36, height: 36)
+                        .background(Color(NSColor.controlBackgroundColor))
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color(NSColor.separatorColor).opacity(0.8), lineWidth: 1))
-                        .shadow(color: Color.black.opacity(0.04), radius: 2)
+                        .overlay(Circle().stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5))
                 }
                 .buttonStyle(.plain)
                 .disabled(viewModel.currentIndex == 0)
@@ -173,24 +172,21 @@ public struct FlashcardStudyView: View {
                 }) {
                     Text(viewModel.isFlipped ? "Xem Mặt Trước" : "Lật Xem Nghĩa")
                         .font(.lexioHeadline)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 10)
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(20)
+                        .padding(.horizontal, 22)
+                        .padding(.vertical, 8)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
                 .keyboardShortcut(.space, modifiers: [])
                 .help("Lật thẻ (Phím Space)")
                 
                 Button(action: { viewModel.nextCard(language: deck.language) }) {
                     Image(systemName: "arrow.right")
                         .font(.lexioHeadline)
-                        .frame(width: 40, height: 40)
-                        .background(Color(NSColor.textBackgroundColor))
+                        .frame(width: 36, height: 36)
+                        .background(Color(NSColor.controlBackgroundColor))
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color(NSColor.separatorColor).opacity(0.8), lineWidth: 1))
-                        .shadow(color: Color.black.opacity(0.04), radius: 2)
+                        .overlay(Circle().stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5))
                 }
                 .buttonStyle(.plain)
                 .disabled(viewModel.currentIndex >= viewModel.cards.count - 1)
@@ -323,12 +319,11 @@ private struct CardFaceView: View {
         .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(NSColor.textBackgroundColor))
-                .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color(NSColor.controlBackgroundColor))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color(NSColor.separatorColor).opacity(0.8), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5)
                 )
         )
     }

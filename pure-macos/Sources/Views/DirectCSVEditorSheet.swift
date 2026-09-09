@@ -220,9 +220,12 @@ public struct DirectCSVEditorSheet: View {
                     .font(.system(size: 12, weight: .medium))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
-                    .background(.ultraThinMaterial)
+                    .background(Color(NSColor.textBackgroundColor))
                     .cornerRadius(20)
-                    .shadow(radius: 4)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color(NSColor.separatorColor).opacity(0.8), lineWidth: 0.5)
+                    )
                     .padding(.bottom, 20)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }

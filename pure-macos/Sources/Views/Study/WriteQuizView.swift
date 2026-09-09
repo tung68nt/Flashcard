@@ -203,12 +203,11 @@ public struct WriteQuizView: View {
                 .padding(32)
                 .frame(maxWidth: 640, maxHeight: 420)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(Color(NSColor.textBackgroundColor))
-                        .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 4)
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color(NSColor.controlBackgroundColor))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color(NSColor.separatorColor).opacity(0.8), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5)
                         )
                 )
             }

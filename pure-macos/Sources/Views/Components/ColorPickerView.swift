@@ -141,7 +141,6 @@ public struct DeckColorPickerRow: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    .shadow(color: Color.black.opacity(isSelected ? 0.25 : 0.06), radius: isSelected ? 3 : 1, x: 0, y: 1)
                     .scaleEffect(isSelected ? 1.15 : 1.0)
                     .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
                 }
@@ -174,7 +173,7 @@ public struct DeckColorPickerRow: View {
                 .cornerRadius(12)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color(NSColor.separatorColor), lineWidth: 1)
+                        .stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5)
                 )
             }
             .buttonStyle(.plain)
@@ -187,7 +186,6 @@ public struct DeckColorPickerRow: View {
                             .fill(Color(hex: selectedHex))
                             .frame(width: 28, height: 28)
                             .overlay(Circle().stroke(Color.white.opacity(0.8), lineWidth: 1.5))
-                            .shadow(color: Color.black.opacity(0.15), radius: 2)
                         
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Mã màu HEX")

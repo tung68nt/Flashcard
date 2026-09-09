@@ -1,46 +1,29 @@
 import SwiftUI
 import AppKit
 
-// MARK: - Liquid Glass View Modifiers for macOS
+// MARK: - Apple macOS Human Interface Guidelines Material & Inset Grouped Styling
 
-public struct LiquidGlassCardModifier: ViewModifier {
+public struct AppleInsetCardModifier: ViewModifier {
     public var cornerRadius: CGFloat
     
-    public init(cornerRadius: CGFloat = 16) {
+    public init(cornerRadius: CGFloat = 10) {
         self.cornerRadius = cornerRadius
     }
     
     public func body(content: Content) -> some View {
         content
             .background(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(Color(NSColor.controlBackgroundColor))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .stroke(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.28),
-                                Color.white.opacity(0.08),
-                                Color.black.opacity(0.1)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1
-                    )
-            )
-            .shadow(
-                color: Color.black.opacity(0.07),
-                radius: 10,
-                x: 0,
-                y: 4
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5)
             )
     }
 }
 
-public struct LiquidGlassPillModifier: ViewModifier {
+public struct ApplePillModifier: ViewModifier {
     public var isHighlighted: Bool
     
     public init(isHighlighted: Bool = false) {
@@ -49,35 +32,25 @@ public struct LiquidGlassPillModifier: ViewModifier {
     
     public func body(content: Content) -> some View {
         content
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4.5)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 3.5)
             .background(
                 Capsule()
-                    .fill(isHighlighted ? AnyShapeStyle(Color.accentColor.opacity(0.16)) : AnyShapeStyle(.thinMaterial))
+                    .fill(isHighlighted ? Color.accentColor.opacity(0.12) : Color(NSColor.quaternaryLabelColor).opacity(0.15))
             )
             .overlay(
                 Capsule()
-                    .stroke(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(isHighlighted ? 0.4 : 0.25),
-                                Color.white.opacity(0.06)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 0.8
-                    )
+                    .stroke(isHighlighted ? Color.accentColor.opacity(0.25) : Color(NSColor.separatorColor).opacity(0.4), lineWidth: 0.5)
             )
     }
 }
 
 public extension View {
-    func liquidGlassCard(cornerRadius: CGFloat = 16, isInteractive: Bool = false) -> some View {
-        self.modifier(LiquidGlassCardModifier(cornerRadius: cornerRadius))
+    func liquidGlassCard(cornerRadius: CGFloat = 10, isInteractive: Bool = false) -> some View {
+        self.modifier(AppleInsetCardModifier(cornerRadius: cornerRadius))
     }
     
     func liquidGlassPill(isHighlighted: Bool = false) -> some View {
-        self.modifier(LiquidGlassPillModifier(isHighlighted: isHighlighted))
+        self.modifier(ApplePillModifier(isHighlighted: isHighlighted))
     }
 }

@@ -188,16 +188,12 @@ public struct ContentView: View {
                             RoundedRectangle(cornerRadius: 20)
                                 .stroke(Color(NSColor.separatorColor).opacity(0.8), lineWidth: 1)
                         )
-                        .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 3)
                         .padding(.bottom, 24)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }
             }
-            .background(
-                VisualEffectView(material: .sidebar, blendingMode: .behindWindow)
-                    .ignoresSafeArea()
-            )
+            .background(Color(NSColor.windowBackgroundColor))
             .toolbar {
                 ToolbarItemGroup(placement: .automatic) {
                     // 1. Accent Selector (Oxford / Cambridge)

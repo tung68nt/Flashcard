@@ -67,26 +67,18 @@ public struct DeckDetailView: View {
                     // Back Navigation Link
                     if let back = onBack {
                         Button(action: back) {
-                            HStack(spacing: 5) {
+                            HStack(spacing: 4) {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 11, weight: .semibold))
                                 Text("Tất cả bộ thẻ")
                                     .font(.lexioBody)
                             }
                             .foregroundColor(.accentColor)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Capsule())
-                            .overlay(
-                                Capsule()
-                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.8)
-                            )
                         }
                         .buttonStyle(.plain)
                     }
                     
-                    // MARK: - 1. Liquid Glass Header & Quick Actions
+                    // MARK: - 1. Clean Apple Inset Header & Quick Actions
                     VStack(alignment: .leading, spacing: 12) {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 6) {
@@ -103,7 +95,7 @@ public struct DeckDetailView: View {
                                 }
                                 
                                 Text(currentDeck.title)
-                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .font(.system(size: 22, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
                                 
                                 if !currentDeck.description.isEmpty {
@@ -134,110 +126,79 @@ public struct DeckDetailView: View {
                                         }
                                     }
                                 } label: {
-                                    HStack(spacing: 5) {
+                                    HStack(spacing: 4) {
                                         Image(systemName: "tablecells")
-                                            .font(.system(size: 12, weight: .medium))
+                                            .font(.system(size: 11, weight: .medium))
                                         Text("Dữ Liệu & CSV")
                                             .font(.system(size: 12, weight: .medium))
-                                        Image(systemName: "chevron.down")
-                                            .font(.system(size: 9, weight: .semibold))
-                                            .foregroundColor(.secondary)
                                     }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(.thinMaterial)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
-                                    )
                                 }
-                                .menuStyle(.borderlessButton)
+                                .menuStyle(.borderedButton)
+                                .controlSize(.regular)
                                 .help("Sửa nhanh bảng tính CSV, nạp thêm hoặc xuất dữ liệu bộ thẻ này")
                                 
                                 Button(action: onEditDeck) {
                                     HStack(spacing: 4) {
                                         Image(systemName: "pencil")
-                                            .font(.system(size: 12, weight: .medium))
+                                            .font(.system(size: 11, weight: .medium))
                                         Text("Sửa")
                                             .font(.system(size: 12, weight: .medium))
                                     }
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(.thinMaterial)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
-                                    )
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.bordered)
+                                .controlSize(.regular)
                                 .help("Chỉnh sửa thông tin và danh sách thẻ trong Studio")
                                 
                                 Button(action: { viewModel.showDeleteConfirm = true }) {
                                     Image(systemName: "trash")
-                                        .font(.system(size: 12, weight: .medium))
+                                        .font(.system(size: 11, weight: .medium))
                                         .foregroundColor(.red.opacity(0.85))
-                                        .padding(6)
-                                        .background(.thinMaterial)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 8)
-                                                .stroke(Color.white.opacity(0.2), lineWidth: 0.8)
-                                        )
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(.bordered)
+                                .controlSize(.regular)
                                 .help("Xóa bộ thẻ này")
                             }
                         }
                     }
-                    .padding(18)
-                    .liquidGlassCard(cornerRadius: 16)
+                    .padding(16)
+                    .liquidGlassCard(cornerRadius: 10)
                     
-                    // MARK: - 2. Hero Primary Study Action (Trung tâm điều hướng cho người mới)
+                    // MARK: - 2. Hero Primary Study Action (Banner Inset Chuẩn Apple)
                     VStack(alignment: .leading, spacing: 12) {
-                        HStack(alignment: .center, spacing: 16) {
+                        HStack(alignment: .center, spacing: 14) {
                             ZStack {
-                                Circle()
+                                RoundedRectangle(cornerRadius: 10)
                                     .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                currentDeck.dueCardsCount > 0 ? Color(hex: "#FF375F") : Color(hex: "#0A84FF"),
-                                                currentDeck.dueCardsCount > 0 ? Color(hex: "#FF9F0A") : Color(hex: "#30D158")
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                                        (currentDeck.dueCardsCount > 0 ? Color.red : Color.accentColor).opacity(0.12)
                                     )
-                                    .frame(width: 48, height: 48)
-                                    .shadow(color: (currentDeck.dueCardsCount > 0 ? Color.red : Color.blue).opacity(0.3), radius: 10, y: 4)
+                                    .frame(width: 44, height: 44)
                                 
                                 Image(systemName: currentDeck.dueCardsCount > 0 ? "brain.head.profile" : "sparkles")
-                                    .font(.system(size: 22, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(currentDeck.dueCardsCount > 0 ? Color.red : Color.accentColor)
                             }
                             
-                            VStack(alignment: .leading, spacing: 3) {
+                            VStack(alignment: .leading, spacing: 2) {
                                 if currentDeck.dueCardsCount > 0 {
                                     Text("Đến giờ ôn tập thông minh")
-                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .font(.system(size: 15, weight: .bold, design: .rounded))
                                         .foregroundColor(.primary)
                                     Text("Có \(currentDeck.dueCardsCount) thẻ vựng đến hạn ôn hôm nay theo thuật toán ngắt quãng (SRS).")
-                                        .font(.system(size: 12.5))
+                                        .font(.system(size: 12))
                                         .foregroundColor(.secondary)
                                 } else {
                                     Text("Bạn đã hoàn thành mục tiêu ôn tập hôm nay!")
-                                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                                        .font(.system(size: 15, weight: .bold, design: .rounded))
                                         .foregroundColor(.primary)
                                     Text("Tổng cộng \(currentDeck.cards.count) thẻ vựng. Bạn có thể lật thẻ ôn lại hoặc thử sức với các bài tập.")
-                                        .font(.system(size: 12.5))
+                                        .font(.system(size: 12))
                                         .foregroundColor(.secondary)
                                 }
                             }
                             
                             Spacer(minLength: 16)
                             
-                            // Nút Bắt Đầu Học Chính (Hero CTA)
+                            // Nút Bắt Đầu Học Chính (Hero CTA - Apple Bordered Prominent)
                             Button(action: {
                                 if currentDeck.dueCardsCount > 0 {
                                     onStartStudy(.srs)
@@ -245,33 +206,24 @@ public struct DeckDetailView: View {
                                     onStartStudy(.flashcards)
                                 }
                             }) {
-                                HStack(spacing: 8) {
+                                HStack(spacing: 6) {
                                     Image(systemName: "play.fill")
-                                        .font(.system(size: 13, weight: .bold))
+                                        .font(.system(size: 11, weight: .bold))
                                     Text(currentDeck.dueCardsCount > 0 ? "Ôn Tập Ngay (\(currentDeck.dueCardsCount))" : "Bắt Đầu Lật Thẻ")
-                                        .font(.system(size: 14, weight: .bold))
+                                        .font(.system(size: 13, weight: .semibold))
                                 }
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 10)
-                                .background(
-                                    LinearGradient(
-                                        colors: [Color.accentColor, Color.accentColor.opacity(0.85)],
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                )
-                                .foregroundColor(.white)
-                                .clipShape(Capsule())
-                                .shadow(color: Color.accentColor.opacity(0.35), radius: 8, y: 3)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 7)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.regular)
                             .disabled(currentDeck.cards.isEmpty)
                         }
                     }
-                    .padding(18)
-                    .liquidGlassCard(cornerRadius: 16, isInteractive: true)
+                    .padding(14)
+                    .liquidGlassCard(cornerRadius: 10)
                     
-                    // MARK: - 3. Slim Liquid Glass Stat Strip (Thu gọn 4 khối KPI cồng kềnh)
+                    // MARK: - 3. Slim Inset Stat Strip (4 Khối chỉ số thanh lịch chuẩn Apple)
                     HStack(spacing: 0) {
                         StatPill(
                             title: "Tổng số thẻ",
@@ -280,7 +232,7 @@ public struct DeckDetailView: View {
                             tint: Color(hex: "#0A84FF")
                         )
                         
-                        Divider().frame(height: 28).opacity(0.4)
+                        Divider().frame(height: 24).opacity(0.4)
                         
                         StatPill(
                             title: "Cần ôn hôm nay",
@@ -289,7 +241,7 @@ public struct DeckDetailView: View {
                             tint: currentDeck.dueCardsCount > 0 ? Color(hex: "#FF453A") : Color(hex: "#30D158")
                         )
                         
-                        Divider().frame(height: 28).opacity(0.4)
+                        Divider().frame(height: 24).opacity(0.4)
                         
                         StatPill(
                             title: "Gắn sao",
@@ -298,7 +250,7 @@ public struct DeckDetailView: View {
                             tint: Color(hex: "#FF9F0A")
                         )
                         
-                        Divider().frame(height: 28).opacity(0.4)
+                        Divider().frame(height: 24).opacity(0.4)
                         
                         StatPill(
                             title: "Độ dễ SM-2",
@@ -308,16 +260,16 @@ public struct DeckDetailView: View {
                         )
                     }
                     .padding(.vertical, 10)
-                    .padding(.horizontal, 12)
-                    .liquidGlassCard(cornerRadius: 12)
+                    .padding(.horizontal, 8)
+                    .liquidGlassCard(cornerRadius: 10)
                     
-                    // MARK: - 4. Study Modes Strip (5 Chế độ học gọn gàng, thanh lịch)
-                    VStack(alignment: .leading, spacing: 10) {
+                    // MARK: - 4. Study Modes Strip (5 Chế độ học dạng Apple Bordered Buttons)
+                    VStack(alignment: .leading, spacing: 8) {
                         Text("Chế Độ Luyện Tập")
-                            .font(.system(size: 13, weight: .bold))
+                            .font(.system(size: 12, weight: .semibold))
                             .foregroundColor(.secondary)
                         
-                        HStack(spacing: 10) {
+                        HStack(spacing: 8) {
                             studyModeButton(for: .flashcards, label: "Lật Thẻ", icon: "rectangle.stack")
                             studyModeButton(for: .srs, label: "Học SRS", icon: "brain")
                             studyModeButton(for: .write, label: "Gõ Từ", icon: "keyboard")
@@ -327,7 +279,7 @@ public struct DeckDetailView: View {
                     }
                     
                     // MARK: - 5. Cards Filter & Search Bar
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 10) {
                         HStack(spacing: 10) {
                             HStack(spacing: 8) {
                                 Image(systemName: "magnifyingglass")
@@ -345,13 +297,13 @@ public struct DeckDetailView: View {
                                     .buttonStyle(.plain)
                                 }
                             }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(Color(NSColor.controlBackgroundColor))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.white.opacity(0.18), lineWidth: 0.8)
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color(NSColor.separatorColor).opacity(0.55), lineWidth: 0.5)
                             )
                             
                             // Filter Starred
@@ -419,9 +371,12 @@ public struct DeckDetailView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-                .background(.ultraThinMaterial)
+                .background(Color(NSColor.textBackgroundColor))
                 .cornerRadius(20)
-                .shadow(radius: 6)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color(NSColor.separatorColor).opacity(0.8), lineWidth: 0.5)
+                )
                 .padding(.bottom, 24)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
@@ -473,32 +428,17 @@ public struct DeckDetailView: View {
     @ViewBuilder
     private func studyModeButton(for mode: StudyMode, label: String, icon: String) -> some View {
         Button(action: { onStartStudy(mode) }) {
-            HStack(spacing: 7) {
+            HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(mode.tintColor)
                 Text(label)
-                    .font(.system(size: 12.5, weight: .medium))
-                    .foregroundColor(.primary)
+                    .font(.system(size: 12, weight: .medium))
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
-            .background(.thinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.25), Color.white.opacity(0.06)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 0.8
-                    )
-            )
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.bordered)
+        .controlSize(.regular)
         .disabled(currentDeck.cards.isEmpty)
         .help("Bắt đầu luyện tập chế độ \(mode.rawValue)")
     }

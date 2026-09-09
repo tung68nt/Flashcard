@@ -115,13 +115,13 @@ public struct DeckListView: View {
                             .buttonStyle(.plain)
                         }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color(NSColor.controlBackgroundColor))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.white.opacity(0.18), lineWidth: 0.8)
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(Color(NSColor.separatorColor).opacity(0.55), lineWidth: 0.5)
                     )
                     
                     if categories.count > 1 {
