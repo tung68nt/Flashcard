@@ -29,8 +29,7 @@ public struct DeckListView: View {
     }
     
     private var categories: [String] {
-        let cats = Set(storage.decks.map { $0.category })
-        return ["Tất cả"] + Array(cats).sorted()
+        return ["Tất cả"] + storage.allCategoryNames
     }
     
     private var filteredDecks: [Deck] {
@@ -125,13 +124,26 @@ public struct DeckListView: View {
                     )
                     
                     if categories.count > 1 {
-                        Picker("Danh mục:", selection: $viewModel.selectedCategory) {
-                            ForEach(categories, id: \.self) { cat in
-                                Text(cat).tag(cat)
+                        HStack(spacing: 6) {
+                            Picker("Danh mục:", selection: $viewModel.selectedCategory) {
+                                ForEach(categories, id: \.self) { cat in
+                                    let count = cat == "Tất cả" ? storage.decks.count : storage.decks.filter { $0.category == cat }.count
+                                    Text("\(cat) (\(count))").tag(cat)
+                                }
                             }
+                            .pickerStyle(.menu)
+                            .frame(width: 180)
+                            
+                            Button {
+                                NotificationCenter.default.post(name: NSNotification.Name("LexioManageCategories"), object: nil)
+                            } label: {
+                                Image(systemName: "folder.badge.gear")
+                                    .font(.system(size: 13))
+                                    .foregroundColor(.secondary)
+                            }
+                            .buttonStyle(.plain)
+                            .help("Quản lý danh mục...")
                         }
-                        .pickerStyle(.menu)
-                        .frame(width: 150)
                     }
                 }
                 

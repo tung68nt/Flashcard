@@ -97,9 +97,26 @@ public struct DeckStudioView: View {
                             GridRow {
                                 Text("Danh mục:")
                                     .font(.lexioBody)
-                                TextField("VD: Academic, IT, Daily...", text: $vm.category)
-                                    .textFieldStyle(.roundedBorder)
-                                    .font(.lexioBody)
+                                HStack(spacing: 8) {
+                                    TextField("VD: Academic, IT, Daily...", text: $vm.category)
+                                        .textFieldStyle(.roundedBorder)
+                                        .font(.lexioBody)
+                                    
+                                    Menu {
+                                        Section("Danh mục có sẵn") {
+                                            ForEach(StorageService.shared.allCategoryNames, id: \.self) { cat in
+                                                Button(cat) {
+                                                    vm.category = cat
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        Image(systemName: "list.bullet")
+                                            .font(.system(size: 11))
+                                    }
+                                    .help("Chọn nhanh từ danh mục có sẵn")
+                                    .frame(width: 32)
+                                }
                             }
                             
                             GridRow {

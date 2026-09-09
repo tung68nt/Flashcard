@@ -1,13 +1,31 @@
 import Foundation
 import Combine
 
+// MARK: - Category Info Model
+public struct CategoryInfo: Identifiable, Hashable {
+    public var id: String { name }
+    public let name: String
+    public let deckCount: Int
+    public let totalCards: Int
+    public let dueCards: Int
+    
+    public init(name: String, deckCount: Int, totalCards: Int, dueCards: Int) {
+        self.name = name
+        self.deckCount = deckCount
+        self.totalCards = totalCards
+        self.dueCards = dueCards
+    }
+}
+
 public class StorageService: ObservableObject {
     public static let shared = StorageService()
     
     @Published public var decks: [Deck] = []
+    @Published public var customCategories: [String] = []
     
     private let fileManager = FileManager.default
     private let storageURL: URL
+    private let categoriesURL: URL
     
     private init() {
         // Thư mục lưu trữ chuẩn macOS: ~/Library/Application Support/LexioPro/
@@ -19,7 +37,9 @@ public class StorageService: ObservableObject {
         }
         
         self.storageURL = appDir.appendingPathComponent("decks.json")
+        self.categoriesURL = appDir.appendingPathComponent("categories.json")
         loadDecks()
+        loadCategories()
     }
     
     public func loadDecks() {
@@ -107,5 +127,122 @@ public class StorageService: ObservableObject {
         let imported = try decoder.decode([Deck].self, from: data)
         self.decks = imported
         saveDecks()
+    }
+    
+    // MARK: - Category Management
+    
+    public func loadCategories() {
+        if fileManager.fileExists(atPath: categoriesURL.path) {
+            do {
+                let data = try Data(contentsOf: categoriesURL)
+                let loaded = try JSONDecoder().decode([String].self, from: data)
+                self.customCategories = loaded
+                return
+            } catch {
+                print("[Lexio Native] Lỗi giải mã categories.json: \(error)")
+            }
+        }
+        
+        // Mặc định nạp các danh mục từ decks hiện có
+        let initialCategories = Array(Set(decks.map { $0.category.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty })).sorted()
+        self.customCategories = initialCategories.isEmpty ? ["Chung"] : initialCategories
+        saveCategories()
+    }
+    
+    public func saveCategories() {
+        do {
+            let data = try JSONEncoder().encode(customCategories)
+            try data.write(to: categoriesURL, options: [.atomicWrite])
+        } catch {
+            print("[Lexio Native] Lỗi lưu categories.json: \(error)")
+        }
+    }
+    
+    public var allCategoryNames: [String] {
+        var names = Set(decks.map { $0.category.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty })
+        for cat in customCategories {
+            let trimmed = cat.trimmingCharacters(in: .whitespaces)
+            if !trimmed.isEmpty {
+                names.insert(trimmed)
+            }
+        }
+        if names.isEmpty {
+            names.insert("Chung")
+        }
+        return names.sorted()
+    }
+    
+    public var allCategoryInfos: [CategoryInfo] {
+        let names = allCategoryNames
+        return names.map { cat in
+            let matchingDecks = decks.filter { $0.category.trimmingCharacters(in: .whitespaces) == cat }
+            let totalCards = matchingDecks.reduce(0) { $0 + $1.cards.count }
+            let dueCards = matchingDecks.reduce(0) { $0 + $1.dueCardsCount }
+            return CategoryInfo(name: cat, deckCount: matchingDecks.count, totalCards: totalCards, dueCards: dueCards)
+        }
+    }
+    
+    @discardableResult
+    public func createCategory(named name: String) -> Bool {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return false }
+        if !customCategories.contains(trimmed) {
+            customCategories.append(trimmed)
+            customCategories.sort()
+            saveCategories()
+            return true
+        }
+        return false
+    }
+    
+    public func renameCategory(from oldName: String, to newName: String) {
+        let from = oldName.trimmingCharacters(in: .whitespaces)
+        let to = newName.trimmingCharacters(in: .whitespaces)
+        guard !from.isEmpty, !to.isEmpty, from != to else { return }
+        
+        var modified = false
+        for i in 0..<decks.count {
+            if decks[i].category.trimmingCharacters(in: .whitespaces) == from {
+                decks[i].category = to
+                decks[i].updatedAt = Date()
+                modified = true
+            }
+        }
+        
+        customCategories.removeAll { $0 == from }
+        if !customCategories.contains(to) {
+            customCategories.append(to)
+        }
+        customCategories.sort()
+        
+        if modified {
+            saveDecks()
+        }
+        saveCategories()
+    }
+    
+    public func deleteCategory(named name: String, reassignTo: String = "Chung") {
+        let target = name.trimmingCharacters(in: .whitespaces)
+        let fallback = reassignTo.trimmingCharacters(in: .whitespaces).isEmpty ? "Chung" : reassignTo.trimmingCharacters(in: .whitespaces)
+        
+        var modified = false
+        for i in 0..<decks.count {
+            if decks[i].category.trimmingCharacters(in: .whitespaces) == target {
+                decks[i].category = fallback
+                decks[i].updatedAt = Date()
+                modified = true
+            }
+        }
+        
+        customCategories.removeAll { $0 == target }
+        if !customCategories.contains(fallback) {
+            customCategories.append(fallback)
+        }
+        customCategories.sort()
+        
+        if modified {
+            saveDecks()
+        }
+        saveCategories()
     }
 }

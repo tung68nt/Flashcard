@@ -10,6 +10,7 @@ public class ContentViewModel: ObservableObject {
     @Published public var deckToEdit: Deck? = nil
     @Published public var toastMessage: String? = nil
     @Published public var showAboutModal: Bool = false
+    @Published public var isCategoryManagerOpen: Bool = false
     @Published public var selectedAccent: AudioAccent = SpeechService.shared.preferredAccent
     
     public init() {}
@@ -52,6 +53,21 @@ public struct ContentView: View {
                     NavigationLink(value: "") {
                         Label("Tất cả bộ thẻ", systemImage: "square.grid.2x2")
                             .font(.lexioBody)
+                    }
+                    
+                    NavigationLink(value: "__categories__") {
+                        HStack {
+                            Label("Quản Lý Danh Mục", systemImage: "folder.badge.gear")
+                                .font(.lexioBody)
+                            Spacer()
+                            Text("\(storage.allCategoryNames.count)")
+                                .font(.lexioCaptionMedium)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 1.5)
+                                .background(Color.primary.opacity(0.06))
+                                .clipShape(Capsule())
+                        }
                     }
                 }
                 
@@ -97,16 +113,43 @@ public struct ContentView: View {
             }
             .listStyle(.sidebar)
             .navigationSplitViewColumnWidth(min: 250, ideal: 300, max: 450)
+            .onChange(of: vm.selectedDeckId) { newId in
+                if newId == "__categories__" {
+                    vm.isCategoryManagerOpen = true
+                    vm.selectedDeckId = nil
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        vm.deckToEdit = nil
-                        vm.isStudioOpen = true
-                    }) {
-                        Image(systemName: "plus")
+                    HStack(spacing: 8) {
+                        Button(action: {
+                            vm.isCategoryManagerOpen = true
+                        }) {
+                            Image(systemName: "folder.badge.gear")
+                        }
+                        .help("Quản lý danh mục")
+                        .sheet(isPresented: $vm.isCategoryManagerOpen) {
+                            CategoryManagerSheet {
+                                vm.isCategoryManagerOpen = false
+                            }
+                        }
+                        
+                        Button(action: {
+                            vm.deckToEdit = nil
+                            vm.isStudioOpen = true
+                        }) {
+                            Image(systemName: "plus")
+                        }
+                        .help("Tạo bộ thẻ mới (Cmd+N)")
+                        .keyboardShortcut("n", modifiers: .command)
+                        .sheet(isPresented: $vm.isStudioOpen) {
+                            DeckStudioView(deckToEdit: vm.deckToEdit) { savedDeck in
+                                storage.saveDeck(savedDeck)
+                                vm.selectedDeckId = savedDeck.id
+                                vm.showToast("Đã lưu bộ thẻ \"\(savedDeck.title)\"")
+                            }
+                        }
                     }
-                    .help("Tạo bộ thẻ mới (Cmd+N)")
-                    .keyboardShortcut("n", modifiers: .command)
                 }
             }
         } detail: {
@@ -227,6 +270,12 @@ public struct ContentView: View {
                     
                     // 2. Data & Cloud/File Management
                     Menu {
+                        Section("Danh Mục") {
+                            Button(action: { vm.isCategoryManagerOpen = true }) {
+                                Label("Quản Lý Danh Mục...", systemImage: "folder.badge.gear")
+                            }
+                        }
+                        
                         Section("Nhập / Xuất CSV") {
                             Button(action: importCSV) {
                                 Label("Nhập Thêm Từ File CSV...", systemImage: "arrow.down.doc")
@@ -263,6 +312,9 @@ public struct ContentView: View {
                             .frame(width: 18, height: 18)
                     }
                     .help("Kiểm tra bản cập nhật mới (Check for Updates)")
+                    .sheet(isPresented: $updateService.isUpdateSheetPresented) {
+                        UpdateSheetView()
+                    }
                     
                     // 4. About Modal
                     Button(action: { vm.showAboutModal = true }) {
@@ -271,21 +323,11 @@ public struct ContentView: View {
                             .frame(width: 18, height: 18)
                     }
                     .help("Thông tin Lexio PRO Native")
+                    .sheet(isPresented: $vm.showAboutModal) {
+                        AboutNativeView()
+                    }
                 }
             }
-        }
-        .sheet(isPresented: $vm.isStudioOpen) {
-            DeckStudioView(deckToEdit: vm.deckToEdit) { savedDeck in
-                storage.saveDeck(savedDeck)
-                vm.selectedDeckId = savedDeck.id
-                vm.showToast("Đã lưu bộ thẻ \"\(savedDeck.title)\"")
-            }
-        }
-        .sheet(isPresented: $vm.showAboutModal) {
-            AboutNativeView()
-        }
-        .sheet(isPresented: $updateService.isUpdateSheetPresented) {
-            UpdateSheetView()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LexioImportCSV"))) { _ in
             importCSV()
