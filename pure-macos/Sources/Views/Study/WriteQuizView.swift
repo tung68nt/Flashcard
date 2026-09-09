@@ -202,19 +202,12 @@ public struct WriteQuizView: View {
                 }
                 .padding(32)
                 .frame(maxWidth: 640, maxHeight: 420)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color(NSColor.controlBackgroundColor))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5)
-                        )
-                )
+                .appleStudyCard(cornerRadius: 18)
             }
             
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.lexioCanvasBackground)
     }
 }

@@ -215,7 +215,7 @@ public struct MatchGameView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.lexioCanvasBackground)
         .onAppear {
             viewModel.loadBestTime(deckId: deck.id)
             viewModel.startNewGame(deck: deck)
@@ -244,11 +244,12 @@ private struct TileCardView: View {
         .frame(height: 100)
         .frame(maxWidth: .infinity)
         .background(backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(borderColor, lineWidth: isSelected ? 1.5 : 0.5)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .stroke(borderColor, lineWidth: isSelected ? 2 : 1)
         )
+        .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
         .opacity(tile.isMatched ? 0.0 : 1.0)
         .animation(.easeInOut(duration: 0.25), value: tile.isMatched)
         .animation(.easeInOut(duration: 0.15), value: isSelected)

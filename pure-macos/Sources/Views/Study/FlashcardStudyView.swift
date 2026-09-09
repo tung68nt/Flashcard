@@ -155,10 +155,11 @@ public struct FlashcardStudyView: View {
                 Button(action: viewModel.prevCard) {
                     Image(systemName: "arrow.left")
                         .font(.lexioHeadline)
-                        .frame(width: 36, height: 36)
-                        .background(Color(NSColor.controlBackgroundColor))
+                        .frame(width: 38, height: 38)
+                        .background(Color.lexioCardBackground)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5))
+                        .overlay(Circle().stroke(Color.primary.opacity(0.08), lineWidth: 1))
+                        .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
                 }
                 .buttonStyle(.plain)
                 .disabled(viewModel.currentIndex == 0)
@@ -183,10 +184,11 @@ public struct FlashcardStudyView: View {
                 Button(action: { viewModel.nextCard(language: deck.language) }) {
                     Image(systemName: "arrow.right")
                         .font(.lexioHeadline)
-                        .frame(width: 36, height: 36)
-                        .background(Color(NSColor.controlBackgroundColor))
+                        .frame(width: 38, height: 38)
+                        .background(Color.lexioCardBackground)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5))
+                        .overlay(Circle().stroke(Color.primary.opacity(0.08), lineWidth: 1))
+                        .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
                 }
                 .buttonStyle(.plain)
                 .disabled(viewModel.currentIndex >= viewModel.cards.count - 1)
@@ -196,7 +198,7 @@ public struct FlashcardStudyView: View {
             .padding(.bottom, 24)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.lexioCanvasBackground)
         .onAppear {
             if viewModel.autoPlayAudio, let card = viewModel.currentCard {
                 SpeechService.shared.speakTerm(card.term, language: deck.language)
@@ -318,13 +320,6 @@ private struct CardFaceView: View {
         }
         .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color(NSColor.controlBackgroundColor))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5)
-                )
-        )
+        .appleStudyCard(cornerRadius: 18)
     }
 }

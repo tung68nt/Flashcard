@@ -193,7 +193,7 @@ public struct ContentView: View {
                     }
                 }
             }
-            .background(Color(NSColor.windowBackgroundColor))
+            .background(Color.lexioCanvasBackground)
             .toolbar {
                 ToolbarItemGroup(placement: .automatic) {
                     // 1. Accent Selector (Oxford / Cambridge)

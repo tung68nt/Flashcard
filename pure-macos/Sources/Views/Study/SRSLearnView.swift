@@ -229,14 +229,7 @@ public struct SRSLearnView: View {
                 }
                 .padding(32)
                 .frame(maxWidth: 680, maxHeight: 420)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color(NSColor.controlBackgroundColor))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(Color(NSColor.separatorColor).opacity(0.6), lineWidth: 0.5)
-                        )
-                )
+                .appleStudyCard(cornerRadius: 18)
                 
                 // SM-2 Rating Bar
                 if viewModel.isAnswerRevealed {
@@ -258,7 +251,7 @@ public struct SRSLearnView: View {
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
                                         .stroke(rating.color.opacity(0.35), lineWidth: 1)
-                                )
+                                    )
                             }
                             .buttonStyle(.plain)
                             .keyboardShortcut(KeyEquivalent(Character("\(rating.rawValue)")), modifiers: [])
@@ -273,6 +266,6 @@ public struct SRSLearnView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.lexioCanvasBackground)
     }
 }
