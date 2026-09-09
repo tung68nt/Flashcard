@@ -176,16 +176,14 @@ private struct DeckCardTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
-                // Clean Apple Icon Square
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(deckColor.opacity(0.15))
-                        .frame(width: 40, height: 40)
-                    
-                    Image(systemName: "book.closed.fill")
-                        .font(.system(size: 18))
-                        .foregroundColor(deckColor)
-                }
+                // Apple Liquid Glass Icon Badge
+                LiquidGlassIconBadge(
+                    icon: "book.closed.fill",
+                    tintColor: deckColor,
+                    size: 40,
+                    iconSize: 18,
+                    cornerRadius: 10
+                )
                 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(deck.category)

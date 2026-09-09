@@ -157,16 +157,14 @@ public struct DeckDetailView: View {
                     // MARK: - 2. Unified Hero Header (Gộp Header + Hero CTA + Stats + Mode Actions)
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(alignment: .top, spacing: 14) {
-                            // Deck Icon Badge (48x48 rounded rect with deck color)
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                    .fill(Color(hex: currentDeck.colorHex).opacity(0.15))
-                                    .frame(width: 48, height: 48)
-                                
-                                Image(systemName: "book.closed.fill")
-                                    .font(.system(size: 22, weight: .semibold))
-                                    .foregroundColor(Color(hex: currentDeck.colorHex))
-                            }
+                            // Deck Icon Badge (Apple Liquid Glass)
+                            LiquidGlassIconBadge(
+                                icon: "book.closed.fill",
+                                tintColor: Color(hex: currentDeck.colorHex),
+                                size: 48,
+                                iconSize: 22,
+                                cornerRadius: 12
+                            )
                             
                             VStack(alignment: .leading, spacing: 5) {
                                 // Category & Language Pills
@@ -282,23 +280,14 @@ public struct DeckDetailView: View {
                             onStartStudy(.srs, effectiveLimit)
                         }) {
                             HStack(spacing: 16) {
-                                // Vibrant Glowing Icon Badge
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(
-                                            LinearGradient(
-                                                colors: [Color(hex: "#FF2A6D"), Color(hex: "#7928CA")],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
-                                        .frame(width: 46, height: 46)
-                                        .shadow(color: Color(hex: "#FF2A6D").opacity(0.35), radius: 8, x: 0, y: 3)
-                                    
-                                    Image(systemName: "brain.head.profile")
-                                        .font(.system(size: 22, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
+                                // Apple Liquid Glass Icon Badge (No neon glow)
+                                LiquidGlassIconBadge(
+                                    icon: "brain.head.profile",
+                                    tintColor: Color(hex: "#FF2A6D"),
+                                    size: 44,
+                                    iconSize: 21,
+                                    cornerRadius: 11
+                                )
                                 
                                 VStack(alignment: .leading, spacing: 4) {
                                     HStack(spacing: 8) {
@@ -351,16 +340,10 @@ public struct DeckDetailView: View {
                                 }
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 7)
-                                .background(
-                                    LinearGradient(
-                                        colors: [Color(hex: "#0A84FF"), Color(hex: "#0066CC")],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
+                                .background(Color.accentColor)
                                 .foregroundColor(.white)
                                 .cornerRadius(8)
-                                .shadow(color: Color(hex: "#0A84FF").opacity(0.3), radius: 4, x: 0, y: 2)
+                                .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
                             }
                             .padding(14)
                             .background(
@@ -369,12 +352,12 @@ public struct DeckDetailView: View {
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 12)
                                             .stroke(
-                                                viewModel.hoveredMode == .srs ? Color(hex: "#FF2A6D").opacity(0.6) : Color.primary.opacity(0.08),
+                                                viewModel.hoveredMode == .srs ? Color(hex: "#FF2A6D").opacity(0.35) : Color.primary.opacity(0.08),
                                                 lineWidth: 1
                                             )
                                     )
                             )
-                            .shadow(color: Color.black.opacity(0.03), radius: 5, x: 0, y: 2)
+                            .shadow(color: Color.black.opacity(0.03), radius: 4, x: 0, y: 2)
                             .scaleEffect(viewModel.hoveredMode == .srs ? 1.01 : 1.0)
                             .animation(.spring(response: 0.25, dampingFraction: 0.7), value: viewModel.hoveredMode)
                         }
@@ -389,7 +372,7 @@ public struct DeckDetailView: View {
                                 title: "Lật Thẻ 3D",
                                 subtitle: "Lật 2 mặt kèm audio",
                                 icon: "rectangle.portrait.on.rectangle.portrait.angled.fill",
-                                gradientColors: [Color(hex: "#FF7A00"), Color(hex: "#FF512F")],
+                                tintColor: Color(hex: "#FF9500"),
                                 isHovered: viewModel.hoveredMode == .flashcards,
                                 onHover: { h in viewModel.hoveredMode = h ? .flashcards : nil },
                                 onTap: { onStartStudy(.flashcards, effectiveLimit) }
@@ -400,7 +383,7 @@ public struct DeckDetailView: View {
                                 title: "Gõ Từ Vựng",
                                 subtitle: "Luyện phản xạ chính tả",
                                 icon: "keyboard.fill",
-                                gradientColors: [Color(hex: "#00C9FF"), Color(hex: "#0072FF")],
+                                tintColor: Color(hex: "#007AFF"),
                                 isHovered: viewModel.hoveredMode == .write,
                                 onHover: { h in viewModel.hoveredMode = h ? .write : nil },
                                 onTap: { onStartStudy(.write, effectiveLimit) }
@@ -411,7 +394,7 @@ public struct DeckDetailView: View {
                                 title: "Ghép Thẻ Nhanh",
                                 subtitle: "Nối nhanh từ & nghĩa",
                                 icon: "bolt.fill",
-                                gradientColors: [Color(hex: "#F7971E"), Color(hex: "#FFD200")],
+                                tintColor: Color(hex: "#FF9F0A"),
                                 isHovered: viewModel.hoveredMode == .match,
                                 onHover: { h in viewModel.hoveredMode = h ? .match : nil },
                                 onTap: { onStartStudy(.match, effectiveLimit) }
@@ -422,7 +405,7 @@ public struct DeckDetailView: View {
                                 title: "Bài Kiểm Tra",
                                 subtitle: "Trắc nghiệm & chấm điểm",
                                 icon: "checkmark.seal.fill",
-                                gradientColors: [Color(hex: "#11998E"), Color(hex: "#38EF7D")],
+                                tintColor: Color(hex: "#34C759"),
                                 isHovered: viewModel.hoveredMode == .test,
                                 onHover: { h in viewModel.hoveredMode = h ? .test : nil },
                                 onTap: { onStartStudy(.test, effectiveLimit) }
@@ -796,7 +779,7 @@ struct PracticeModeTile: View {
     let title: String
     let subtitle: String
     let icon: String
-    let gradientColors: [Color]
+    let tintColor: Color
     let isHovered: Bool
     let onHover: (Bool) -> Void
     let onTap: () -> Void
@@ -805,22 +788,20 @@ struct PracticeModeTile: View {
         Button(action: onTap) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 9)
-                            .fill(LinearGradient(colors: gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(width: 32, height: 32)
-                            .shadow(color: gradientColors[0].opacity(0.35), radius: 4, x: 0, y: 2)
-                        
-                        Image(systemName: icon)
-                            .font(.system(size: 13.5, weight: .bold))
-                            .foregroundColor(.white)
-                    }
+                    // Apple Liquid Glass Icon Badge
+                    LiquidGlassIconBadge(
+                        icon: icon,
+                        tintColor: tintColor,
+                        size: 32,
+                        iconSize: 14,
+                        cornerRadius: 9
+                    )
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
                         .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(isHovered ? gradientColors[0] : .secondary.opacity(0.35))
+                        .foregroundColor(isHovered ? tintColor : .secondary.opacity(0.35))
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
@@ -837,12 +818,12 @@ struct PracticeModeTile: View {
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                RoundedRectangle(cornerRadius: 11)
-                    .fill(Color(nsColor: .windowBackgroundColor).opacity(0.85))
+                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                    .fill(isHovered ? tintColor.opacity(0.04) : Color(nsColor: .windowBackgroundColor).opacity(0.85))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 11)
+                        RoundedRectangle(cornerRadius: 11, style: .continuous)
                             .stroke(
-                                isHovered ? gradientColors[0].opacity(0.6) : Color.primary.opacity(0.07),
+                                isHovered ? tintColor.opacity(0.35) : Color.primary.opacity(0.07),
                                 lineWidth: 1
                             )
                     )
