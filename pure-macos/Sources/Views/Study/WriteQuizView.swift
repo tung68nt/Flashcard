@@ -10,8 +10,13 @@ public final class WriteQuizViewModel: ObservableObject {
     @Published public var streak: Int = 0
     @Published public var isFinished: Bool = false
     
-    public init(cards: [Flashcard]) {
-        self.cards = cards.shuffled()
+    public init(cards: [Flashcard], limit: Int? = nil) {
+        let pool = cards.shuffled()
+        if let limit = limit, limit > 0 {
+            self.cards = Array(pool.prefix(limit))
+        } else {
+            self.cards = pool
+        }
     }
     
     public var currentCard: Flashcard? {
@@ -59,10 +64,10 @@ public struct WriteQuizView: View {
     
     @StateObject private var viewModel: WriteQuizViewModel
     
-    public init(deck: Deck, onClose: @escaping () -> Void) {
+    public init(deck: Deck, sessionLimit: Int? = nil, onClose: @escaping () -> Void) {
         self.deck = deck
         self.onClose = onClose
-        _viewModel = StateObject(wrappedValue: WriteQuizViewModel(cards: deck.cards))
+        _viewModel = StateObject(wrappedValue: WriteQuizViewModel(cards: deck.cards, limit: sessionLimit))
     }
     
     public var body: some View {

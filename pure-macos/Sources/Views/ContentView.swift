@@ -5,6 +5,7 @@ import AppKit
 public class ContentViewModel: ObservableObject {
     @Published public var selectedDeckId: String? = nil
     @Published public var activeStudyMode: StudyMode? = nil
+    @Published public var activeStudyLimit: Int? = nil
     @Published public var isStudioOpen: Bool = false
     @Published public var deckToEdit: Deck? = nil
     @Published public var toastMessage: String? = nil
@@ -114,15 +115,15 @@ public struct ContentView: View {
                     // Active Study Mode
                     switch mode {
                     case .flashcards:
-                        FlashcardStudyView(deck: deck) {
+                        FlashcardStudyView(deck: deck, sessionLimit: vm.activeStudyLimit) {
                             vm.activeStudyMode = nil
                         }
                     case .srs:
-                        SRSLearnView(deck: deck) {
+                        SRSLearnView(deck: deck, sessionLimit: vm.activeStudyLimit) {
                             vm.activeStudyMode = nil
                         }
                     case .write:
-                        WriteQuizView(deck: deck) {
+                        WriteQuizView(deck: deck, sessionLimit: vm.activeStudyLimit) {
                             vm.activeStudyMode = nil
                         }
                     case .match:
@@ -130,7 +131,7 @@ public struct ContentView: View {
                             vm.activeStudyMode = nil
                         }
                     case .test:
-                        TestModeView(deck: deck) {
+                        TestModeView(deck: deck, sessionLimit: vm.activeStudyLimit) {
                             vm.activeStudyMode = nil
                         }
                     }
@@ -141,7 +142,8 @@ public struct ContentView: View {
                         onBack: {
                             vm.selectedDeckId = nil
                         },
-                        onStartStudy: { mode in
+                        onStartStudy: { mode, limit in
+                            vm.activeStudyLimit = limit
                             vm.activeStudyMode = mode
                         },
                         onEditDeck: {

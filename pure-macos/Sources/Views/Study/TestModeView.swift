@@ -41,10 +41,14 @@ public final class TestModeViewModel: ObservableObject {
         return count
     }
     
-    public func generateQuestions(deck: Deck) {
+    public func generateQuestions(deck: Deck, limit: Int? = nil) {
         var generated: [TestQuestion] = []
-        let pool = deck.cards
+        var pool = deck.cards
         guard !pool.isEmpty else { return }
+        
+        if let limit = limit, limit > 0 {
+            pool = Array(pool.prefix(limit))
+        }
         
         for (idx, card) in pool.enumerated() {
             let isTF = (idx % 3 == 2) // Mỗi câu thứ 3 là True/False
@@ -89,12 +93,14 @@ public final class TestModeViewModel: ObservableObject {
 
 public struct TestModeView: View {
     public let deck: Deck
+    public var sessionLimit: Int? = nil
     public var onClose: () -> Void
     
     @StateObject private var viewModel = TestModeViewModel()
     
-    public init(deck: Deck, onClose: @escaping () -> Void) {
+    public init(deck: Deck, sessionLimit: Int? = nil, onClose: @escaping () -> Void) {
         self.deck = deck
+        self.sessionLimit = sessionLimit
         self.onClose = onClose
     }
     
@@ -271,7 +277,7 @@ public struct TestModeView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.lexioCanvasBackground)
         .onAppear {
-            viewModel.generateQuestions(deck: deck)
+            viewModel.generateQuestions(deck: deck, limit: sessionLimit)
         }
     }
 }

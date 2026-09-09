@@ -10,13 +10,20 @@ public final class DeckDetailViewModel: ObservableObject {
     @Published public var showDirectCSVEditor: Bool = false
     @Published public var toastMessage: String? = nil
     
+    // Practice Session Limit
+    @Published public var sessionLimit: Int = 0 // 0 = Tất cả thẻ
+    @Published public var isCustomLimit: Bool = false
+    @Published public var customLimitInput: Int = 20
+    @Published public var isCustomPopoverPresented: Bool = false
+    @Published public var hoveredMode: StudyMode? = nil
+    
     public init() {}
 }
 
 public struct DeckDetailView: View {
     public let deck: Deck
     public var onBack: (() -> Void)? = nil
-    public var onStartStudy: (StudyMode) -> Void
+    public var onStartStudy: (StudyMode, Int?) -> Void
     public var onEditDeck: () -> Void
     public var onDeleteDeck: () -> Void
     
@@ -26,7 +33,7 @@ public struct DeckDetailView: View {
     public init(
         deck: Deck,
         onBack: (() -> Void)? = nil,
-        onStartStudy: @escaping (StudyMode) -> Void,
+        onStartStudy: @escaping (StudyMode, Int?) -> Void,
         onEditDeck: @escaping () -> Void,
         onDeleteDeck: @escaping () -> Void
     ) {
@@ -35,6 +42,21 @@ public struct DeckDetailView: View {
         self.onStartStudy = onStartStudy
         self.onEditDeck = onEditDeck
         self.onDeleteDeck = onDeleteDeck
+    }
+    
+    private var effectiveLimit: Int? {
+        if viewModel.isCustomLimit {
+            return viewModel.customLimitInput > 0 ? viewModel.customLimitInput : nil
+        }
+        return viewModel.sessionLimit > 0 ? viewModel.sessionLimit : nil
+    }
+    
+    private var srsTargetCount: Int {
+        let poolCount = currentDeck.dueCardsCount > 0 ? currentDeck.dueCardsCount : currentDeck.cards.count
+        if let limit = effectiveLimit {
+            return min(limit, poolCount)
+        }
+        return poolCount
     }
     
     private var currentDeck: Deck {
@@ -222,76 +244,189 @@ public struct DeckDetailView: View {
                             
                             Spacer(minLength: 8)
                         }
-                        
-                        Divider().opacity(0.4)
-                        
-                        // Clear Action Bar: Primary Play + Secondary Flip + Mode Menu
-                        HStack(spacing: 10) {
-                            // Primary Action
-                            Button(action: {
-                                if currentDeck.dueCardsCount > 0 {
-                                    onStartStudy(.srs)
-                                } else {
-                                    onStartStudy(.flashcards)
-                                }
-                            }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "play.fill")
-                                        .font(.system(size: 11, weight: .bold))
-                                    Text(currentDeck.dueCardsCount > 0 ? "Ôn Tập Ngay (\(currentDeck.dueCardsCount))" : "Bắt Đầu Học")
-                                        .font(.system(size: 13, weight: .semibold))
-                                }
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 6)
+                    }
+                    .padding(16)
+                    .liquidGlassCard(cornerRadius: 14)
+                    
+                    // MARK: - 2. PRACTICE MODES HUB (Chế Độ Luyện Tập Sống Động & Tùy Chọn Số Thẻ)
+                    VStack(alignment: .leading, spacing: 14) {
+                        // Section Header + Session Size Controls
+                        HStack(alignment: .center) {
+                            HStack(spacing: 7) {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(Color(hex: "#FF9F0A"))
+                                Text("Chế Độ Luyện Tập")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(.primary)
                             }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.regular)
-                            .disabled(currentDeck.cards.isEmpty)
-                            
-                            // Secondary Action: Standard Flip
-                            Button(action: { onStartStudy(.flashcards) }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "rectangle.stack")
-                                        .font(.system(size: 11, weight: .medium))
-                                    Text("Lật Thẻ")
-                                        .font(.system(size: 12.5, weight: .medium))
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.regular)
-                            .disabled(currentDeck.cards.isEmpty)
-                            
-                            // Other Practice Modes (Submenu)
-                            Menu {
-                                Button(action: { onStartStudy(.srs) }) {
-                                    Label("Học Ngắt Quãng SRS", systemImage: "brain")
-                                }
-                                Button(action: { onStartStudy(.write) }) {
-                                    Label("Gõ Từ Vựng (Recall)", systemImage: "keyboard")
-                                }
-                                Button(action: { onStartStudy(.match) }) {
-                                    Label("Ghép Thẻ Nhanh", systemImage: "square.grid.2x2")
-                                }
-                                Button(action: { onStartStudy(.test) }) {
-                                    Label("Bài Thi Trắc Nghiệm", systemImage: "checkmark.seal")
-                                }
-                            } label: {
-                                HStack(spacing: 5) {
-                                    Image(systemName: "ellipsis.circle")
-                                        .font(.system(size: 12, weight: .medium))
-                                    Text("Luyện Tập Khác")
-                                        .font(.system(size: 12.5, weight: .medium))
-                                }
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
-                            }
-                            .menuStyle(.borderedButton)
-                            .controlSize(.regular)
-                            .disabled(currentDeck.cards.isEmpty)
                             
                             Spacer()
+                            
+                            // Custom Session Limit Selector (Quy định số thẻ học hôm nay)
+                            HStack(spacing: 5) {
+                                Text("Số thẻ học:")
+                                    .font(.system(size: 11.5, weight: .medium))
+                                    .foregroundColor(.secondary)
+                                
+                                sessionLimitChip(num: 10)
+                                sessionLimitChip(num: 20)
+                                sessionLimitChip(num: 30)
+                                sessionLimitAllChip
+                                sessionLimitCustomChip
+                            }
+                        }
+                        
+                        // 1. Featured Flagship: Spaced Repetition (SRS) Card
+                        Button(action: {
+                            onStartStudy(.srs, effectiveLimit)
+                        }) {
+                            HStack(spacing: 16) {
+                                // Vibrant Glowing Icon Badge
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color(hex: "#FF2A6D"), Color(hex: "#7928CA")],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                        .frame(width: 46, height: 46)
+                                        .shadow(color: Color(hex: "#FF2A6D").opacity(0.35), radius: 8, x: 0, y: 3)
+                                    
+                                    Image(systemName: "brain.head.profile")
+                                        .font(.system(size: 22, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 4) {
+                                    HStack(spacing: 8) {
+                                        Text("Ôn Tập Thông Minh SRS")
+                                            .font(.system(size: 14.5, weight: .bold))
+                                            .foregroundColor(.primary)
+                                        
+                                        // Dynamic Due Badge
+                                        if currentDeck.dueCardsCount > 0 {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "flame.fill")
+                                                    .font(.system(size: 9.5))
+                                                Text("\(currentDeck.dueCardsCount) thẻ đến hạn")
+                                                    .font(.system(size: 10.5, weight: .bold))
+                                            }
+                                            .padding(.horizontal, 7)
+                                            .padding(.vertical, 2.5)
+                                            .background(Color(hex: "#FF453A").opacity(0.12))
+                                            .foregroundColor(Color(hex: "#FF453A"))
+                                            .cornerRadius(6)
+                                        } else {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "checkmark.seal.fill")
+                                                    .font(.system(size: 9.5))
+                                                Text("Đã ôn xong hôm nay")
+                                                    .font(.system(size: 10.5, weight: .bold))
+                                            }
+                                            .padding(.horizontal, 7)
+                                            .padding(.vertical, 2.5)
+                                            .background(Color(hex: "#30D158").opacity(0.12))
+                                            .foregroundColor(Color(hex: "#30D158"))
+                                            .cornerRadius(6)
+                                        }
+                                    }
+                                    
+                                    Text("Thuật toán ngắt quãng SM-2 khoa học • Tự động lên lịch theo đường cong quên lãng")
+                                        .font(.system(size: 11.5))
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
+                                }
+                                
+                                Spacer(minLength: 8)
+                                
+                                // Play Pill CTA
+                                HStack(spacing: 6) {
+                                    Image(systemName: "play.fill")
+                                        .font(.system(size: 10.5, weight: .bold))
+                                    Text(srsTargetCount > 0 ? "Ôn (\(srsTargetCount)) Thẻ" : "Ôn Ngay")
+                                        .font(.system(size: 12.5, weight: .semibold))
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 7)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color(hex: "#0A84FF"), Color(hex: "#0066CC")],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                                .shadow(color: Color(hex: "#0A84FF").opacity(0.3), radius: 4, x: 0, y: 2)
+                            }
+                            .padding(14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color(nsColor: .windowBackgroundColor).opacity(0.85))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(
+                                                viewModel.hoveredMode == .srs ? Color(hex: "#FF2A6D").opacity(0.6) : Color.primary.opacity(0.08),
+                                                lineWidth: 1
+                                            )
+                                    )
+                            )
+                            .shadow(color: Color.black.opacity(0.03), radius: 5, x: 0, y: 2)
+                            .scaleEffect(viewModel.hoveredMode == .srs ? 1.01 : 1.0)
+                            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: viewModel.hoveredMode)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { h in viewModel.hoveredMode = h ? .srs : nil }
+                        .disabled(currentDeck.cards.isEmpty)
+                        
+                        // 2. Grid of 4 Companion Practice Modes
+                        HStack(spacing: 10) {
+                            // Flashcards 3D
+                            PracticeModeTile(
+                                title: "Lật Thẻ 3D",
+                                subtitle: "Lật 2 mặt kèm audio",
+                                icon: "rectangle.portrait.on.rectangle.portrait.angled.fill",
+                                gradientColors: [Color(hex: "#FF7A00"), Color(hex: "#FF512F")],
+                                isHovered: viewModel.hoveredMode == .flashcards,
+                                onHover: { h in viewModel.hoveredMode = h ? .flashcards : nil },
+                                onTap: { onStartStudy(.flashcards, effectiveLimit) }
+                            )
+                            
+                            // Write & Recall
+                            PracticeModeTile(
+                                title: "Gõ Từ Vựng",
+                                subtitle: "Luyện phản xạ chính tả",
+                                icon: "keyboard.fill",
+                                gradientColors: [Color(hex: "#00C9FF"), Color(hex: "#0072FF")],
+                                isHovered: viewModel.hoveredMode == .write,
+                                onHover: { h in viewModel.hoveredMode = h ? .write : nil },
+                                onTap: { onStartStudy(.write, effectiveLimit) }
+                            )
+                            
+                            // Speed Match Game
+                            PracticeModeTile(
+                                title: "Ghép Thẻ Nhanh",
+                                subtitle: "Nối nhanh từ & nghĩa",
+                                icon: "bolt.fill",
+                                gradientColors: [Color(hex: "#F7971E"), Color(hex: "#FFD200")],
+                                isHovered: viewModel.hoveredMode == .match,
+                                onHover: { h in viewModel.hoveredMode = h ? .match : nil },
+                                onTap: { onStartStudy(.match, effectiveLimit) }
+                            )
+                            
+                            // Practice Test
+                            PracticeModeTile(
+                                title: "Bài Kiểm Tra",
+                                subtitle: "Trắc nghiệm & chấm điểm",
+                                icon: "checkmark.seal.fill",
+                                gradientColors: [Color(hex: "#11998E"), Color(hex: "#38EF7D")],
+                                isHovered: viewModel.hoveredMode == .test,
+                                onHover: { h in viewModel.hoveredMode = h ? .test : nil },
+                                onTap: { onStartStudy(.test, effectiveLimit) }
+                            )
                         }
                     }
                     .padding(16)
@@ -467,21 +602,108 @@ public struct DeckDetailView: View {
     }
     
     @ViewBuilder
-    private func studyModeButton(for mode: StudyMode, label: String, icon: String) -> some View {
-        Button(action: { onStartStudy(mode) }) {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(mode.tintColor)
-                Text(label)
-                    .font(.system(size: 12, weight: .medium))
-            }
-            .frame(maxWidth: .infinity)
+    private func sessionLimitChip(num: Int) -> some View {
+        let isSelected = (viewModel.sessionLimit == num && !viewModel.isCustomLimit)
+        Button(action: {
+            viewModel.sessionLimit = num
+            viewModel.isCustomLimit = false
+        }) {
+            Text("\(num)")
+                .font(.system(size: 11, weight: isSelected ? .bold : .medium))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3.5)
+                .background(isSelected ? Color.accentColor : Color.primary.opacity(0.06))
+                .foregroundColor(isSelected ? .white : .primary)
+                .cornerRadius(6)
         }
-        .buttonStyle(.bordered)
-        .controlSize(.regular)
-        .disabled(currentDeck.cards.isEmpty)
-        .help("Bắt đầu luyện tập chế độ \(mode.rawValue)")
+        .buttonStyle(.plain)
+    }
+    
+    @ViewBuilder
+    private var sessionLimitAllChip: some View {
+        let isSelected = (viewModel.sessionLimit == 0 && !viewModel.isCustomLimit)
+        Button(action: {
+            viewModel.sessionLimit = 0
+            viewModel.isCustomLimit = false
+        }) {
+            Text("Tất cả")
+                .font(.system(size: 11, weight: isSelected ? .bold : .medium))
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3.5)
+                .background(isSelected ? Color.accentColor : Color.primary.opacity(0.06))
+                .foregroundColor(isSelected ? .white : .primary)
+                .cornerRadius(6)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    @ViewBuilder
+    private var sessionLimitCustomChip: some View {
+        Button(action: {
+            viewModel.isCustomPopoverPresented = true
+        }) {
+            HStack(spacing: 3) {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.system(size: 10))
+                Text(viewModel.isCustomLimit ? "\(viewModel.customLimitInput) thẻ" : "Tùy chỉnh")
+                    .font(.system(size: 11, weight: viewModel.isCustomLimit ? .bold : .medium))
+            }
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3.5)
+            .background(viewModel.isCustomLimit ? Color.accentColor : Color.primary.opacity(0.06))
+            .foregroundColor(viewModel.isCustomLimit ? .white : .primary)
+            .cornerRadius(6)
+        }
+        .buttonStyle(.plain)
+        .popover(isPresented: $viewModel.isCustomPopoverPresented) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "slider.horizontal.3")
+                        .foregroundColor(.accentColor)
+                    Text("Quy Định Số Thẻ Phiên Này")
+                        .font(.system(size: 13, weight: .bold))
+                }
+                
+                Text("Đặt số lượng thẻ bạn muốn tập trung ôn luyện trong phiên này (từ 1 đến \(max(1, currentDeck.cards.count)) thẻ).")
+                    .font(.system(size: 11.5))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                HStack(spacing: 10) {
+                    TextField("Số thẻ", value: $viewModel.customLimitInput, formatter: NumberFormatter())
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 70)
+                    
+                    Stepper("", value: $viewModel.customLimitInput, in: 1...max(1, currentDeck.cards.count))
+                        .labelsHidden()
+                    
+                    Text("/ \(currentDeck.cards.count) thẻ")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+                
+                HStack {
+                    Button("Hủy") {
+                        viewModel.isCustomPopoverPresented = false
+                    }
+                    .buttonStyle(.plain)
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+                    
+                    Spacer()
+                    
+                    Button("Áp Dụng") {
+                        viewModel.customLimitInput = max(1, min(viewModel.customLimitInput, currentDeck.cards.count))
+                        viewModel.isCustomLimit = true
+                        viewModel.isCustomPopoverPresented = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                }
+            }
+            .padding(14)
+            .frame(width: 270)
+        }
     }
     
     private func exportCSV() {
@@ -570,27 +792,66 @@ public struct DeckDetailView: View {
     }
 }
 
-private struct StatPill: View {
+struct PracticeModeTile: View {
     let title: String
-    let value: String
+    let subtitle: String
     let icon: String
-    let tint: Color
+    let gradientColors: [Color]
+    let isHovered: Bool
+    let onHover: (Bool) -> Void
+    let onTap: () -> Void
     
     var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(tint)
-            
-            VStack(alignment: .leading, spacing: 1) {
-                Text(value)
-                    .font(.system(size: 15, weight: .bold, design: .rounded))
-                    .foregroundColor(.primary)
-                Text(title)
-                    .font(.system(size: 11))
-                    .foregroundColor(.secondary)
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 9)
+                            .fill(LinearGradient(colors: gradientColors, startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .frame(width: 32, height: 32)
+                            .shadow(color: gradientColors[0].opacity(0.35), radius: 4, x: 0, y: 2)
+                        
+                        Image(systemName: icon)
+                            .font(.system(size: 13.5, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(isHovered ? gradientColors[0] : .secondary.opacity(0.35))
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.primary)
+                    
+                    Text(subtitle)
+                        .font(.system(size: 10.5))
+                        .foregroundColor(.secondary)
+                        .lineLimit(1)
+                }
             }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 11)
+                    .fill(Color(nsColor: .windowBackgroundColor).opacity(0.85))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 11)
+                            .stroke(
+                                isHovered ? gradientColors[0].opacity(0.6) : Color.primary.opacity(0.07),
+                                lineWidth: 1
+                            )
+                    )
+            )
+            .scaleEffect(isHovered ? 1.02 : 1.0)
+            .animation(.spring(response: 0.22, dampingFraction: 0.7), value: isHovered)
         }
-        .frame(maxWidth: .infinity)
+        .buttonStyle(.plain)
+        .onHover(perform: onHover)
     }
 }
+

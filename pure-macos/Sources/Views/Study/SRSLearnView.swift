@@ -8,9 +8,14 @@ public final class SRSLearnViewModel: ObservableObject {
     @Published public var goodCount: Int = 0
     @Published public var isFinished: Bool = false
     
-    public init(cards: [Flashcard]) {
+    public init(cards: [Flashcard], limit: Int? = nil) {
         let due = cards.filter { $0.isDue }
-        self.queue = due.isEmpty ? cards : due
+        let pool = due.isEmpty ? cards : due
+        if let limit = limit, limit > 0 {
+            self.queue = Array(pool.prefix(limit))
+        } else {
+            self.queue = pool
+        }
     }
     
     public var currentCard: Flashcard? {
@@ -52,10 +57,10 @@ public struct SRSLearnView: View {
     
     @StateObject private var viewModel: SRSLearnViewModel
     
-    public init(deck: Deck, onClose: @escaping () -> Void) {
+    public init(deck: Deck, sessionLimit: Int? = nil, onClose: @escaping () -> Void) {
         self.deck = deck
         self.onClose = onClose
-        _viewModel = StateObject(wrappedValue: SRSLearnViewModel(cards: deck.cards))
+        _viewModel = StateObject(wrappedValue: SRSLearnViewModel(cards: deck.cards, limit: sessionLimit))
     }
     
     public var body: some View {

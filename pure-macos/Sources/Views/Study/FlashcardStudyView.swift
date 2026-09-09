@@ -6,8 +6,12 @@ public final class FlashcardStudyViewModel: ObservableObject {
     @Published public var isFlipped: Bool = false
     @Published public var autoPlayAudio: Bool = true
     
-    public init(cards: [Flashcard]) {
-        self.cards = cards
+    public init(cards: [Flashcard], limit: Int? = nil) {
+        if let limit = limit, limit > 0 {
+            self.cards = Array(cards.prefix(limit))
+        } else {
+            self.cards = cards
+        }
     }
     
     public var currentCard: Flashcard? {
@@ -53,10 +57,10 @@ public struct FlashcardStudyView: View {
     
     @StateObject private var viewModel: FlashcardStudyViewModel
     
-    public init(deck: Deck, onClose: @escaping () -> Void) {
+    public init(deck: Deck, sessionLimit: Int? = nil, onClose: @escaping () -> Void) {
         self.deck = deck
         self.onClose = onClose
-        _viewModel = StateObject(wrappedValue: FlashcardStudyViewModel(cards: deck.cards))
+        _viewModel = StateObject(wrappedValue: FlashcardStudyViewModel(cards: deck.cards, limit: sessionLimit))
     }
     
     public var body: some View {
