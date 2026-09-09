@@ -242,7 +242,7 @@ public struct DirectCSVEditorSheet: View {
                     .foregroundColor(.secondary)
                 Spacer()
                 Text("Tổng: \(vm.cards.count) dòng (\(vm.validCardsCount) thẻ hợp lệ)")
-                    .font(.system(size: 11, design: .monospaced))
+                    .font(.system(size: 11))
                     .foregroundColor(.secondary)
             }
             .padding(.horizontal, 18)
@@ -293,7 +293,7 @@ public struct DirectCSVEditorSheet: View {
                     HStack(spacing: 6) {
                         // Số thứ tự
                         Text("\(index + 1)")
-                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                            .font(.system(size: 11, weight: .bold))
                             .foregroundColor(.secondary)
                             .frame(width: 38, alignment: .center)
                         
@@ -312,8 +312,7 @@ public struct DirectCSVEditorSheet: View {
                                 get: { vm.cards[index].phonetic },
                                 set: { vm.cards[index].phonetic = $0 }
                             ),
-                            width: 115,
-                            isMonospace: true
+                            width: 115
                         )
                         
                         // POS
@@ -438,12 +437,11 @@ public struct DirectCSVEditorSheet: View {
         placeholder: String,
         text: Binding<String>,
         width: CGFloat,
-        isBold: Bool = false,
-        isMonospace: Bool = false
+        isBold: Bool = false
     ) -> some View {
         TextField(placeholder, text: text)
             .textFieldStyle(.plain)
-            .font(isMonospace ? .system(size: 11, design: .monospaced) : .system(size: 12, weight: isBold ? .semibold : .regular))
+            .font(.system(size: 12, weight: isBold ? .semibold : .regular))
             .padding(.horizontal, 7)
             .padding(.vertical, 5)
             .background(Color(NSColor.controlBackgroundColor).opacity(0.6))
@@ -458,7 +456,7 @@ public struct DirectCSVEditorSheet: View {
     // MARK: - Raw CSV Text Editor
     private var rawCSVTextEditor: some View {
         TextEditor(text: $vm.csvText)
-            .font(.system(size: 13, weight: .regular, design: .monospaced))
+            .font(.system(size: 13, weight: .regular))
             .scrollContentBackground(.hidden)
             .padding(14)
             .background(Color(NSColor.textBackgroundColor))

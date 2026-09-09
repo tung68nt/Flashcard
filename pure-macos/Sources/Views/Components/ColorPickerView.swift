@@ -195,7 +195,7 @@ public struct DeckColorPickerRow: View {
                             HStack(spacing: 4) {
                                 TextField("#HEX", text: $state.hexInputText)
                                     .textFieldStyle(.roundedBorder)
-                                    .font(.system(size: 11, design: .monospaced))
+                                    .font(.system(size: 11))
                                     .frame(width: 80)
                                 
                                 Button("OK") {

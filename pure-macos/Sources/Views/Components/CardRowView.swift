@@ -74,7 +74,7 @@ public struct CardRowView: View {
                     Image(systemName: "link")
                         .font(.system(size: 9, weight: .bold))
                     Text(grammar)
-                        .font(.system(size: 11, weight: .medium, design: .monospaced))
+                        .font(.system(size: 11, weight: .medium))
                 }
                 .foregroundColor(Color(hex: "#FF2D55"))
                 .padding(.horizontal, 7)

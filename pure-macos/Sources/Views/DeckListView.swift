@@ -191,7 +191,7 @@ private struct DeckCardTile: View {
                         .foregroundColor(.secondary)
                     
                     Text(deck.title)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.primary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)

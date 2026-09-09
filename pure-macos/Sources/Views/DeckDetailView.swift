@@ -182,7 +182,7 @@ public struct DeckDetailView: View {
                                 
                                 // Title
                                 Text(currentDeck.title)
-                                    .font(.system(size: 21, weight: .bold, design: .rounded))
+                                    .font(.system(size: 21, weight: .bold))
                                     .foregroundColor(.primary)
                                 
                                 // Description
